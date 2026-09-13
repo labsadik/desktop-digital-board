@@ -41,21 +41,21 @@ export function App() {
     } catch (error) {
       setProgress(100)
       setMessage(error instanceof Error ? error.message : 'Operation failed')
-      throw error
+      return null
     } finally {
       window.clearInterval(interval)
       window.setTimeout(() => { setBusy(false); setProgress(0) }, 260)
     }
   }
 
-  const save = () => void run(project.sourceFormat === 'pdf' ? 'Preparing PDF…' : project.sourceFormat === 'pptx' ? 'Preparing PowerPoint…' : 'Preparing project…', async () => project.sourceFormat === 'pdf' ? window.desktop.exportPdf(projectToPdfHtml(project), project.name) : project.sourceFormat === 'pptx' ? window.desktop.exportPptx(project) : window.desktop.saveProject(project))
-  const open = () => void run('Opening project…', async () => { const loaded = await window.desktop.openProject(); if (loaded) loadProject(loaded); return null })
-  const importPdf = () => void run('Preparing PDF import…', async () => { const dataUrl = await window.desktop.importPdf(); if (!dataUrl) return null; loadProject(await importPdfProject(dataUrl)); setShowStart(false); return null })
-  const importPptx = () => void run('Preparing PowerPoint import…', async () => { const dataUrl = await window.desktop.importPptx(); if (!dataUrl) return null; loadProject(await importPptxProject(dataUrl)); setShowStart(false); return null })
-  const importImage = () => void run('Importing image…', async () => { const src = await window.desktop.importImage(); if (!src) return null; useEditorStore.getState().addElement({ id: crypto.randomUUID(), type: 'image', x: 1, y: 1, width: 4, height: 2.5, rotation: 0, src }); return null })
-  const exportPdf = () => void run('Preparing PDF export…', () => window.desktop.exportPdf(projectToPdfHtml(project), project.name))
-  const exportPptx = () => void run('Preparing PowerPoint export…', () => window.desktop.exportPptx(project))
-  const exportPng = () => void run('Preparing PNG export…', async () => page ? window.desktop.exportPng(pageToSvg(page), `${project.name}-${page.name}`) : null)
+  const save = () => { void run(project.sourceFormat === 'pdf' ? 'Preparing PDF…' : project.sourceFormat === 'pptx' ? 'Preparing PowerPoint…' : 'Preparing project…', async () => project.sourceFormat === 'pdf' ? window.desktop.exportPdf(projectToPdfHtml(project), project.name) : project.sourceFormat === 'pptx' ? window.desktop.exportPptx(project) : window.desktop.saveProject(project)) }
+  const open = () => { void run('Opening project…', async () => { const loaded = await window.desktop.openProject(); if (loaded) loadProject(loaded); return null }) }
+  const importPdf = () => { void run('Preparing PDF import…', async () => { const dataUrl = await window.desktop.importPdf(); if (!dataUrl) return null; loadProject(await importPdfProject(dataUrl)); setShowStart(false); return null }) }
+  const importPptx = () => { void run('Preparing PowerPoint import…', async () => { const dataUrl = await window.desktop.importPptx(); if (!dataUrl) return null; loadProject(await importPptxProject(dataUrl)); setShowStart(false); return null }) }
+  const importImage = () => { void run('Importing image…', async () => { const src = await window.desktop.importImage(); if (!src) return null; useEditorStore.getState().addElement({ id: crypto.randomUUID(), type: 'image', x: 1, y: 1, width: 4, height: 2.5, rotation: 0, src }); return null }) }
+  const exportPdf = () => { void run('Preparing PDF export…', () => window.desktop.exportPdf(projectToPdfHtml(project), project.name)) }
+  const exportPptx = () => { void run('Preparing PowerPoint export…', () => window.desktop.exportPptx(project)) }
+  const exportPng = () => { void run('Preparing PNG export…', async () => page ? window.desktop.exportPng(pageToSvg(page), `${project.name}-${page.name}`) : null) }
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
