@@ -14,6 +14,8 @@
     "dist": "npm run build && electron-builder --publish never"
   },
   "dependencies": {
+    "fast-xml-parser": "latest",
+    "jszip": "latest",
     "lucide-react": "latest",
     "pdfjs-dist": "latest",
     "pptxgenjs": "latest",
