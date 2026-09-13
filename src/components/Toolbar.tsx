@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { useEditorStore } from '../stores/editor.store'
 
 interface Props {
+  saveLabel: string
   onSave: () => void
   onOpen: () => void
   onImportPdf: () => void
@@ -17,7 +18,7 @@ interface Props {
   onToggleRightSidebar: () => void
 }
 
-export function Toolbar({ onSave, onOpen, onImportPdf, onImportPptx, onExportPptx, onExportPdf, onExportPng, onImage, leftSidebarOpen, rightSidebarOpen, onToggleLeftSidebar, onToggleRightSidebar }: Props) {
+export function Toolbar({ saveLabel, onSave, onOpen, onImportPdf, onImportPptx, onExportPptx, onExportPdf, onExportPng, onImage, leftSidebarOpen, rightSidebarOpen, onToggleLeftSidebar, onToggleRightSidebar }: Props) {
   const tool = useEditorStore((s) => s.tool)
   const setTool = useEditorStore((s) => s.setTool)
   const addPage = useEditorStore((s) => s.addPage)
@@ -27,7 +28,6 @@ export function Toolbar({ onSave, onOpen, onImportPdf, onImportPptx, onExportPpt
   const redo = useEditorStore((s) => s.redo)
   const zoom = useEditorStore((s) => s.zoom)
   const setZoom = useEditorStore((s) => s.setZoom)
-
   const button = (name: string, icon: ReactNode, onClick: () => void, active = false, disabled = false) => <button type="button" title={name} aria-label={name} className={`tool ${active ? 'active' : ''}`} disabled={disabled} onClick={onClick}>{icon}</button>
 
   return <header className="topbar">
@@ -58,7 +58,7 @@ export function Toolbar({ onSave, onOpen, onImportPdf, onImportPptx, onExportPpt
       <button type="button" className="secondary" onClick={onOpen}><FilePlus2 size={16} />Open</button>
       <button type="button" className="secondary" onClick={onImportPdf}><FileUp size={16} />PDF Import</button>
       <button type="button" className="secondary" onClick={onImportPptx}><FileUp size={16} />PPTX Import</button>
-      <button type="button" className="secondary" onClick={onSave}><Save size={16} />Save</button>
+      <button type="button" className="secondary" onClick={onSave}><Save size={16} />{saveLabel}</button>
       <button type="button" className="secondary" onClick={onExportPng}><Download size={16} />PNG</button>
       <button type="button" className="secondary" onClick={onExportPptx}><Download size={16} />PPTX Export</button>
       <button type="button" className="primary" onClick={onExportPdf}><Download size={16} />PDF Export</button>
