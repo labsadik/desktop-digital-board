@@ -4,6 +4,7 @@ import { PageSidebar } from './PageSidebar'
 import { EditorCanvas } from './EditorCanvas'
 import { useEditorStore } from '../stores/editor.store'
 import { importPdfProject } from '../lib/import-pdf'
+import { importPptxProject } from '../lib/import-pptx'
 import { pageToSvg, projectToPdfHtml } from '../lib/export-html'
 
 export function App() {
@@ -18,6 +19,8 @@ export function App() {
   const removeElement = useEditorStore((s) => s.removeElement)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('Ready')
+  const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
+  const [rightSidebarOpen, setRightSidebarOpen] = useState(true)
 
   const page = useMemo(() => project.pages.find((item) => item.id === currentPageId) ?? project.pages[0], [project.pages, currentPageId])
 
@@ -47,6 +50,11 @@ export function App() {
   const importPdf = () => run('Importing PDF…', async () => {
     const dataUrl = await window.desktop.importPdf()
     if (dataUrl) loadProject(await importPdfProject(dataUrl))
+  })
+
+  const importPptx = () => run('Importing PowerPoint…', async () => {
+    const dataUrl = await window.desktop.importPptx()
+    if (dataUrl) loadProject(await importPptxProject(dataUrl))
   })
 
   const importImage = () => run('Importing image…', async () => {
@@ -86,17 +94,30 @@ export function App() {
 
   return (
     <div className="app-shell">
-      <Toolbar onSave={save} onOpen={open} onImportPdf={importPdf} onExportPptx={exportPptx} onExportPdf={exportPdf} onExportPng={exportPng} onImage={importImage} />
+      <Toolbar
+        onSave={save}
+        onOpen={open}
+        onImportPdf={importPdf}
+        onImportPptx={importPptx}
+        onExportPptx={exportPptx}
+        onExportPdf={exportPdf}
+        onExportPng={exportPng}
+        onImage={importImage}
+        leftSidebarOpen={leftSidebarOpen}
+        rightSidebarOpen={rightSidebarOpen}
+        onToggleLeftSidebar={() => setLeftSidebarOpen((value) => !value)}
+        onToggleRightSidebar={() => setRightSidebarOpen((value) => !value)}
+      />
       <div className="editor-layout">
-        <PageSidebar />
+        {leftSidebarOpen && <PageSidebar />}
         <EditorCanvas />
-        <aside className="right-panel">
+        {rightSidebarOpen && <aside className="right-panel">
           <div className="panel-title">Document</div>
           <label>Project name<input value={project.name} onChange={(event) => setProjectName(event.target.value)} /></label>
           {page && <label>Page name<input value={page.name} onChange={(event) => renamePage(page.id, event.target.value)} /></label>}
           <div className="panel-card"><strong>Canvas</strong><span>{project.width.toFixed(2)} × {project.height.toFixed(2)} in</span><span>{project.pages.length} pages</span><span>{page?.elements.length ?? 0} elements</span></div>
           <div className="panel-card"><strong>Shortcuts</strong><span>Click and drag objects.</span><span>Double-click text to edit.</span><span>Delete removes selection.</span><span>Ctrl/Cmd+Z / Y undo and redo.</span></div>
-        </aside>
+        </aside>}
       </div>
       <div className="app-status"><span>{busy ? '● Working' : '● Ready'} — {message}</span><span>{project.pages.length} pages • {page?.elements.length ?? 0} elements</span></div>
     </div>
