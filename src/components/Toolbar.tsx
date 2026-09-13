@@ -1,4 +1,4 @@
-import { Copy, Download, Eraser, FilePlus2, FileUp, Highlighter, ImagePlus, Minus, MousePointer2, PenLine, Plus, Redo2, Save, Square, Trash2, Type, Undo2, ZoomIn, ZoomOut } from 'lucide-react'
+import { Copy, Download, Eraser, FilePlus2, FileUp, Highlighter, ImagePlus, LayoutPanelLeft, LayoutPanelRight, Minus, MousePointer2, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PenLine, Plus, Redo2, Save, Square, Trash2, Type, Undo2, ZoomIn, ZoomOut } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { useEditorStore } from '../stores/editor.store'
 
@@ -6,13 +6,18 @@ interface Props {
   onSave: () => void
   onOpen: () => void
   onImportPdf: () => void
+  onImportPptx: () => void
   onExportPptx: () => void
   onExportPdf: () => void
   onExportPng: () => void
   onImage: () => void
+  leftSidebarOpen: boolean
+  rightSidebarOpen: boolean
+  onToggleLeftSidebar: () => void
+  onToggleRightSidebar: () => void
 }
 
-export function Toolbar({ onSave, onOpen, onImportPdf, onExportPptx, onExportPdf, onExportPng, onImage }: Props) {
+export function Toolbar({ onSave, onOpen, onImportPdf, onImportPptx, onExportPptx, onExportPdf, onExportPng, onImage, leftSidebarOpen, rightSidebarOpen, onToggleLeftSidebar, onToggleRightSidebar }: Props) {
   const tool = useEditorStore((s) => s.tool)
   const setTool = useEditorStore((s) => s.setTool)
   const addPage = useEditorStore((s) => s.addPage)
@@ -28,6 +33,8 @@ export function Toolbar({ onSave, onOpen, onImportPdf, onExportPptx, onExportPdf
   return <header className="topbar">
     <div className="brand"><span className="brand-mark">N</span><span>Note Replace</span></div>
     <div className="toolbar-group primary-tools">
+      {button('Left sidebar', leftSidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeftOpen size={17} />, onToggleLeftSidebar, leftSidebarOpen)}
+      {button('Right sidebar', rightSidebarOpen ? <PanelRightClose size={17} /> : <PanelRightOpen size={17} />, onToggleRightSidebar, rightSidebarOpen)}
       {button('Select / move', <MousePointer2 size={17} />, () => setTool('select'), tool === 'select')}
       {button('Pen', <PenLine size={17} />, () => setTool('pen'), tool === 'pen')}
       {button('Highlighter', <Highlighter size={17} />, () => setTool('highlighter'), tool === 'highlighter')}
@@ -49,10 +56,11 @@ export function Toolbar({ onSave, onOpen, onImportPdf, onExportPptx, onExportPdf
     </div>
     <div className="toolbar-group end-actions">
       <button type="button" className="secondary" onClick={onOpen}><FilePlus2 size={16} />Open</button>
-      <button type="button" className="secondary" onClick={onImportPdf}><FileUp size={16} />PDF</button>
+      <button type="button" className="secondary" onClick={onImportPdf}><FileUp size={16} />PDF Import</button>
+      <button type="button" className="secondary" onClick={onImportPptx}><FileUp size={16} />PPTX Import</button>
       <button type="button" className="secondary" onClick={onSave}><Save size={16} />Save</button>
       <button type="button" className="secondary" onClick={onExportPng}><Download size={16} />PNG</button>
-      <button type="button" className="secondary" onClick={onExportPptx}><Download size={16} />PPTX</button>
+      <button type="button" className="secondary" onClick={onExportPptx}><Download size={16} />PPTX Export</button>
       <button type="button" className="primary" onClick={onExportPdf}><Download size={16} />PDF Export</button>
     </div>
   </header>
