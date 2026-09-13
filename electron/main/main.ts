@@ -18,12 +18,13 @@ function createWindow() {
     backgroundColor: '#0b0d12',
     webPreferences: { preload: path.join(__dirname, '../preload/preload.js'), contextIsolation: true, sandbox: false, nodeIntegration: false, spellcheck: true },
   })
+  mainWindow.setMenuBarVisibility(false)
   mainWindow.on('closed', () => { mainWindow = null })
   if (!app.isPackaged) void mainWindow.loadURL('http://127.0.0.1:5173')
   else void mainWindow.loadFile(path.join(__dirname, '../../../dist/index.html'))
 }
 
-function safeName(name: string) { return name.replace(/[<>:"/\\|?*\x00-\x1F]/g, '-').trim() || 'Untitled' }
+function safeName(name: string) { return name.replace(/[<>:\"/\\|?*\x00-\x1F]/g, '-').trim() || 'Untitled' }
 function toDataUrl(pathname: string) {
   const extension = path.extname(pathname).toLowerCase().slice(1)
   const mime = extension === 'svg' ? 'image/svg+xml' : extension === 'jpg' || extension === 'jpeg' ? 'image/jpeg' : extension === 'webp' ? 'image/webp' : extension === 'gif' ? 'image/gif' : extension === 'pdf' ? 'application/pdf' : extension === 'pptx' ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' : 'image/png'
