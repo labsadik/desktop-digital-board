@@ -18,7 +18,10 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, '../preload/preload.js'),
       contextIsolation: true,
-      sandbox: true,
+      // The preload is compiled as an Electron module. Keep Node disabled in the
+      // renderer but do not sandbox the preload itself, otherwise the bridge can
+      // fail to initialize in packaged Windows builds.
+      sandbox: false,
       nodeIntegration: false,
       spellcheck: true,
     },
