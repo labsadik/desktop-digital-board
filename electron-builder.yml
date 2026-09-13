@@ -5,9 +5,15 @@ directories:
 files:
   - dist/**
   - dist-electron/**
+extraResources:
+  - from: assets/logo.png
+    to: assets/logo.png
 win:
   target: nsis
+  icon: assets/icon.ico
 mac:
   target: dmg
+  icon: assets/logo.png
 linux:
   target: AppImage
+  icon: assets/logo.png
