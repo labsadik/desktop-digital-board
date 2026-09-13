@@ -28,7 +28,9 @@ function createWindow() {
     void mainWindow.loadURL('http://127.0.0.1:5173')
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else {
-    void mainWindow.loadFile(path.join(__dirname, '../../dist/index.html'))
+    // electron/main/main.js lives at <app>/dist-electron/electron/main.
+    // The renderer build is at <app>/dist, so three parent traversals are required.
+    void mainWindow.loadFile(path.join(__dirname, '../../../dist/index.html'))
   }
 }
 
