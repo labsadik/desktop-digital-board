@@ -2,6 +2,7 @@
   "name": "note-replace",
   "version": "0.1.0",
   "description": "Desktop presentation and PDF annotation editor built with Electron and React",
+  "author": "WorkRCS",
   "main": "dist-electron/electron/main/main.js",
   "type": "module",
   "scripts": {
@@ -13,9 +14,6 @@
     "dist": "npm run build && electron-builder"
   },
   "dependencies": {
-    "@vitejs/plugin-react": "latest",
-    "electron": "latest",
-    "electron-builder": "latest",
     "lucide-react": "latest",
     "pdfjs-dist": "latest",
     "pptxgenjs": "latest",
@@ -27,7 +25,10 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "latest",
     "concurrently": "latest",
+    "electron": "latest",
+    "electron-builder": "latest",
     "jsdom": "latest",
     "typescript": "latest",
     "vitest": "latest",
