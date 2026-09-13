@@ -24,6 +24,8 @@ function createWindow() {
     },
   })
 
+  mainWindow.on('closed', () => { mainWindow = null })
+
   if (!app.isPackaged) {
     void mainWindow.loadURL('http://127.0.0.1:5173')
     mainWindow.webContents.openDevTools({ mode: 'detach' })
@@ -44,9 +46,17 @@ function toDataUrl(pathname: string) {
   return fs.readFile(pathname).then((buffer) => `data:${mime};base64,${buffer.toString('base64')}`)
 }
 
+function showOpen(options: Electron.OpenDialogOptions) {
+  return mainWindow && !mainWindow.isDestroyed() ? dialog.showOpenDialog(mainWindow, options) : dialog.showOpenDialog(options)
+}
+
+function showSave(options: Electron.SaveDialogOptions) {
+  return mainWindow && !mainWindow.isDestroyed() ? dialog.showSaveDialog(mainWindow, options) : dialog.showSaveDialog(options)
+}
+
 app.whenReady().then(() => {
   ipcMain.handle('file:open-project', async () => {
-    const result = await dialog.showOpenDialog({
+    const result = await showOpen({
       properties: ['openFile'],
       filters: [{ name: 'Note Replace Project', extensions: ['myed', 'json'] }],
     })
@@ -56,7 +66,9 @@ app.whenReady().then(() => {
       if (!parsed || parsed.version !== 1 || !Array.isArray(parsed.pages)) throw new Error('Invalid project file')
       return parsed
     } catch (error) {
-      await dialog.showMessageBox({ type: 'error', title: 'Open project failed', message: error instanceof Error ? error.message : 'The selected project is invalid.' })
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        await dialog.showMessageBox(mainWindow, { type: 'error', title: 'Open project failed', message: error instanceof Error ? error.message : 'The selected project is invalid.' })
+      }
       return null
     }
   })
@@ -64,7 +76,7 @@ app.whenReady().then(() => {
   ipcMain.handle('file:save-project', async (_event, project: unknown) => {
     if (!project || typeof project !== 'object') throw new Error('Invalid project')
     const candidate = project as { name?: unknown }
-    const result = await dialog.showSaveDialog({
+    const result = await showSave({
       filters: [{ name: 'Note Replace Project', extensions: ['myed'] }],
       defaultPath: `${safeName(typeof candidate.name === 'string' ? candidate.name : 'Untitled')}.myed`,
     })
@@ -74,7 +86,7 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('file:import-image', async () => {
-    const result = await dialog.showOpenDialog({
+    const result = await showOpen({
       properties: ['openFile'],
       filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'] }],
     })
@@ -83,7 +95,7 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('file:import-pdf', async () => {
-    const result = await dialog.showOpenDialog({
+    const result = await showOpen({
       properties: ['openFile'],
       filters: [{ name: 'PDF documents', extensions: ['pdf'] }],
     })
@@ -92,7 +104,7 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('export:pptx', async (_event, project: Parameters<typeof createPptx>[0]) => {
-    const result = await dialog.showSaveDialog({
+    const result = await showSave({
       defaultPath: `${safeName(project.name || 'presentation')}.pptx`,
       filters: [{ name: 'PowerPoint', extensions: ['pptx'] }],
     })
@@ -103,7 +115,7 @@ app.whenReady().then(() => {
 
   ipcMain.handle('export:pdf', async (_event, html: string, fileName: string) => {
     if (typeof html !== 'string' || html.length > 30_000_000) throw new Error('Export payload is too large.')
-    const result = await dialog.showSaveDialog({
+    const result = await showSave({
       defaultPath: `${safeName(fileName || 'presentation')}.pdf`,
       filters: [{ name: 'PDF', extensions: ['pdf'] }],
     })
@@ -121,7 +133,7 @@ app.whenReady().then(() => {
 
   ipcMain.handle('export:png', async (_event, svg: string, fileName: string) => {
     if (typeof svg !== 'string' || !svg.startsWith('<svg')) throw new Error('Invalid SVG export.')
-    const result = await dialog.showSaveDialog({
+    const result = await showSave({
       defaultPath: `${safeName(fileName || 'page')}.png`,
       filters: [{ name: 'PNG image', extensions: ['png'] }],
     })
