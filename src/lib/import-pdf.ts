@@ -7,7 +7,7 @@ export async function importPdfProject(dataUrl: string): Promise<Project> {
   if (comma < 0) throw new Error('Invalid PDF data.')
   const binary = atob(dataUrl.slice(comma + 1))
   const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0))
-  const pdf = await pdfjsLib.getDocument({ data: bytes, disableWorker: true }).promise
+  const pdf = await pdfjsLib.getDocument({ data: bytes }).promise
   const pages: Page[] = []
   let projectWidth = 13.333
   let projectHeight = 7.5
@@ -28,7 +28,7 @@ export async function importPdfProject(dataUrl: string): Promise<Project> {
     canvas.height = Math.max(1, Math.ceil(viewport.height))
     const context = canvas.getContext('2d')
     if (!context) throw new Error('Could not create a PDF rendering context.')
-    await pdfPage.render({ canvasContext: context, viewport }).promise
+    await pdfPage.render({ canvas, canvasContext: context, viewport }).promise
     pages.push({
       id: uid('page'),
       name: `PDF Page ${index}`,
