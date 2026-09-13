@@ -25,21 +25,15 @@ export async function importPdfProject(dataUrl: string): Promise<Project> {
     const baseViewport = pdfPage.getViewport({ scale: 1 })
     const width = Math.max(1, baseViewport.width / 72)
     const height = Math.max(1, baseViewport.height / 72)
-
-    if (index === 1) {
-      projectWidth = width
-      projectHeight = height
-    }
+    if (index === 1) { projectWidth = width; projectHeight = height }
 
     const scale = Math.min(2, 2000 / Math.max(baseViewport.width, baseViewport.height))
     const viewport = pdfPage.getViewport({ scale })
     const canvas = document.createElement('canvas')
     canvas.width = Math.max(1, Math.ceil(viewport.width))
     canvas.height = Math.max(1, Math.ceil(viewport.height))
-
     const context = canvas.getContext('2d', { alpha: false })
     if (!context) throw new Error('Could not create a PDF rendering context.')
-
     context.fillStyle = '#ffffff'
     context.fillRect(0, 0, canvas.width, canvas.height)
     await pdfPage.render({ canvas, canvasContext: context, viewport }).promise
@@ -50,28 +44,12 @@ export async function importPdfProject(dataUrl: string): Promise<Project> {
       width,
       height,
       background: '#ffffff',
-      elements: [{
-        id: uid('image'),
-        type: 'image',
-        x: 0,
-        y: 0,
-        width,
-        height,
-        rotation: 0,
-        src: canvas.toDataURL('image/png'),
-      }],
+      elements: [{ id: uid('image'), type: 'image', x: 0, y: 0, width, height, rotation: 0, src: canvas.toDataURL('image/png') }],
     })
-
     canvas.width = 1
     canvas.height = 1
     pdfPage.cleanup()
   }
 
-  return {
-    version: 1,
-    name: 'Imported PDF',
-    width: projectWidth,
-    height: projectHeight,
-    pages,
-  }
+  return { version: 1, name: 'Imported PDF', width: projectWidth, height: projectHeight, pages, sourceFormat: 'pdf' }
 }
