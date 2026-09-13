@@ -27,6 +27,15 @@ jobs:
           node-version: 22
       - run: npm install
       - run: npm run dist -- --win nsis
+      - name: Smoke test packaged Electron app
+        shell: pwsh
+        run: |
+          $exe = Join-Path $env:GITHUB_WORKSPACE 'dist\win-unpacked\Note Replace.exe'
+          if (-not (Test-Path $exe)) { throw "Packaged Electron executable not found: $exe" }
+          $process = Start-Process -FilePath $exe -PassThru
+          Start-Sleep -Seconds 8
+          if ($process.HasExited) { throw "Electron exited during smoke test with code $($process.ExitCode)" }
+          Stop-Process -Id $process.Id -Force
       - name: Upload Windows installer
         uses: actions/upload-artifact@v4
         with:
