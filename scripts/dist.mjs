@@ -2,8 +2,10 @@ import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { readdir, stat } from 'node:fs/promises'
 import path from 'node:path'
+import process from 'node:process'
 
 const root = process.cwd()
+const node = process.execPath
 const outputs = [
   path.join(root, 'dist', 'index.html'),
   path.join(root, 'dist-electron', 'electron', 'main', 'main.js'),
@@ -47,12 +49,28 @@ async function needsBuild() {
   return false
 }
 
+function runNodeScript(script, args = []) {
+  execFileSync(node, [path.join(root, script), ...args], { stdio: 'inherit' })
+}
+
 if (await needsBuild()) {
   console.log('Build output is missing or stale; running npm run build...')
-  execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', 'build'], { stdio: 'inherit' })
+  const npmCli = process.env.npm_execpath
+  if (npmCli && existsSync(npmCli)) {
+    execFileSync(node, [npmCli, 'run', 'build'], { stdio: 'inherit' })
+  } else {
+    runNodeScript('node_modules/typescript/bin/tsc', ['-b'])
+    execFileSync(path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'vite.cmd' : 'vite'), ['build'], { stdio: 'inherit' })
+    execFileSync(path.join(root, 'node_modules', '.bin', process.platform === 'win32' ? 'tsc.cmd' : 'tsc'), ['-p', 'electron/tsconfig.json'], { stdio: 'inherit' })
+  }
 } else {
   console.log('Build output is current; skipping npm run build.')
 }
 
-execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', 'clean:release'], { stdio: 'inherit' })
-execFileSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', ['electron-builder', '--config', 'electron-builder.yml', '--publish', 'never'], { stdio: 'inherit' })
+runNodeScript('scripts/clean-release.mjs')
+
+const builderCli = path.join(root, 'node_modules', 'app-builder-lib', 'out', 'cli', 'cli.js')
+const electronBuilderBin = path.join(root, 'node_modules', 'electron-builder', 'cli.js')
+const cli = existsSync(electronBuilderBin) ? electronBuilderBin : builderCli
+
+execFileSync(node, [cli, '--config', 'electron-builder.yml', '--publish', 'never'], { stdio: 'inherit' })
