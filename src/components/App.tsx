@@ -64,8 +64,10 @@ export function App() {
     <Toolbar saveLabel={saveLabel} onSave={save} onOpen={open} onImportPdf={importPdf} onImportPptx={importPptx} onExportPptx={exportPptx} onExportPdf={exportPdf} onExportPng={exportPng} onImage={importImage} leftSidebarOpen={leftSidebarOpen} rightSidebarOpen={rightSidebarOpen} onToggleLeftSidebar={() => setLeftSidebarOpen((value) => !value)} onToggleRightSidebar={() => setRightSidebarOpen((value) => !value)} />
     <div className="editor-layout">
       {leftSidebarOpen && <PageSidebar />}
-      <EditorCanvas />
-      <FloatingTools />
+      <div className="canvas-column">
+        <EditorCanvas />
+        <FloatingTools />
+      </div>
       {rightSidebarOpen && <aside className="right-panel">
         <div className="panel-title">Document</div>
         <label>Project name<input value={project.name} onChange={(event) => setProjectName(event.target.value)} /></label>
