@@ -15,8 +15,8 @@ export function PageSidebar() {
       {pages.map((page, index) => <div key={page.id} className={`page-row ${current === page.id ? 'selected' : ''}`}>
         <button type="button" className="page-thumb" onClick={() => selectPage(page.id)} title={`Open ${page.name}`}>
           <div className="thumb-number">{index + 1}</div>
-          <div className="thumb-preview" style={{ background: page.background }}>
-            <svg viewBox={`0 0 ${page.width} ${page.height}`}>
+          <div className="thumb-preview" style={{ background: page.background, aspectRatio: `${page.width} / ${page.height}` }}>
+            <svg viewBox={`0 0 ${page.width} ${page.height}`} preserveAspectRatio="none">
               <rect width="100%" height="100%" fill={page.background} />
               {page.elements.slice(0, 12).map((element) =>
                 element.type === 'image' ? <image key={element.id} href={element.src} x={element.x} y={element.y} width={element.width} height={element.height} preserveAspectRatio="xMidYMid slice" />
@@ -26,6 +26,7 @@ export function PageSidebar() {
               )}
             </svg>
           </div>
+          <span className="page-name">{page.name}</span>
         </button>
         <div className="page-actions">
           <button type="button" title="Move page up" disabled={index === 0} onClick={() => movePage(index, index - 1)}><ChevronUp size={14} /></button>
