@@ -18,9 +18,6 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, '../preload/preload.js'),
       contextIsolation: true,
-      // The preload is compiled as an Electron module. Keep Node disabled in the
-      // renderer but do not sandbox the preload itself, otherwise the bridge can
-      // fail to initialize in packaged Windows builds.
       sandbox: false,
       nodeIntegration: false,
       spellcheck: true,
@@ -33,8 +30,6 @@ function createWindow() {
     void mainWindow.loadURL('http://127.0.0.1:5173')
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else {
-    // electron/main/main.js lives at <app>/dist-electron/electron/main.
-    // The renderer build is at <app>/dist, so three parent traversals are required.
     void mainWindow.loadFile(path.join(__dirname, '../../../dist/index.html'))
   }
 }
@@ -45,7 +40,7 @@ function safeName(name: string) {
 
 function toDataUrl(pathname: string) {
   const extension = path.extname(pathname).toLowerCase().slice(1)
-  const mime = extension === 'svg' ? 'image/svg+xml' : extension === 'jpg' || extension === 'jpeg' ? 'image/jpeg' : extension === 'webp' ? 'image/webp' : extension === 'gif' ? 'image/gif' : extension === 'pdf' ? 'application/pdf' : 'image/png'
+  const mime = extension === 'svg' ? 'image/svg+xml' : extension === 'jpg' || extension === 'jpeg' ? 'image/jpeg' : extension === 'webp' ? 'image/webp' : extension === 'gif' ? 'image/gif' : extension === 'pdf' ? 'application/pdf' : extension === 'pptx' ? 'application/vnd.openxmlformats-officedocument.presentationml.presentation' : 'image/png'
   return fs.readFile(pathname).then((buffer) => `data:${mime};base64,${buffer.toString('base64')}`)
 }
 
@@ -59,19 +54,14 @@ function showSave(options: Electron.SaveDialogOptions) {
 
 app.whenReady().then(() => {
   ipcMain.handle('file:open-project', async () => {
-    const result = await showOpen({
-      properties: ['openFile'],
-      filters: [{ name: 'Note Replace Project', extensions: ['myed', 'json'] }],
-    })
+    const result = await showOpen({ properties: ['openFile'], filters: [{ name: 'Note Replace Project', extensions: ['myed', 'json'] }] })
     if (result.canceled || !result.filePaths[0]) return null
     try {
       const parsed = JSON.parse(await fs.readFile(result.filePaths[0], 'utf8'))
       if (!parsed || parsed.version !== 1 || !Array.isArray(parsed.pages)) throw new Error('Invalid project file')
       return parsed
     } catch (error) {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        await dialog.showMessageBox(mainWindow, { type: 'error', title: 'Open project failed', message: error instanceof Error ? error.message : 'The selected project is invalid.' })
-      }
+      if (mainWindow && !mainWindow.isDestroyed()) await dialog.showMessageBox(mainWindow, { type: 'error', title: 'Open project failed', message: error instanceof Error ? error.message : 'The selected project is invalid.' })
       return null
     }
   })
@@ -79,38 +69,32 @@ app.whenReady().then(() => {
   ipcMain.handle('file:save-project', async (_event, project: unknown) => {
     if (!project || typeof project !== 'object') throw new Error('Invalid project')
     const candidate = project as { name?: unknown }
-    const result = await showSave({
-      filters: [{ name: 'Note Replace Project', extensions: ['myed'] }],
-      defaultPath: `${safeName(typeof candidate.name === 'string' ? candidate.name : 'Untitled')}.myed`,
-    })
+    const result = await showSave({ filters: [{ name: 'Note Replace Project', extensions: ['myed'] }], defaultPath: `${safeName(typeof candidate.name === 'string' ? candidate.name : 'Untitled')}.myed` })
     if (result.canceled || !result.filePath) return null
     await fs.writeFile(result.filePath, JSON.stringify(project, null, 2), 'utf8')
     return result.filePath
   })
 
   ipcMain.handle('file:import-image', async () => {
-    const result = await showOpen({
-      properties: ['openFile'],
-      filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'] }],
-    })
+    const result = await showOpen({ properties: ['openFile'], filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'] }] })
     if (result.canceled || !result.filePaths[0]) return null
     return toDataUrl(result.filePaths[0])
   })
 
   ipcMain.handle('file:import-pdf', async () => {
-    const result = await showOpen({
-      properties: ['openFile'],
-      filters: [{ name: 'PDF documents', extensions: ['pdf'] }],
-    })
+    const result = await showOpen({ properties: ['openFile'], filters: [{ name: 'PDF documents', extensions: ['pdf'] }] })
+    if (result.canceled || !result.filePaths[0]) return null
+    return toDataUrl(result.filePaths[0])
+  })
+
+  ipcMain.handle('file:import-pptx', async () => {
+    const result = await showOpen({ properties: ['openFile'], filters: [{ name: 'PowerPoint presentations', extensions: ['pptx'] }] })
     if (result.canceled || !result.filePaths[0]) return null
     return toDataUrl(result.filePaths[0])
   })
 
   ipcMain.handle('export:pptx', async (_event, project: Parameters<typeof createPptx>[0]) => {
-    const result = await showSave({
-      defaultPath: `${safeName(project.name || 'presentation')}.pptx`,
-      filters: [{ name: 'PowerPoint', extensions: ['pptx'] }],
-    })
+    const result = await showSave({ defaultPath: `${safeName(project.name || 'presentation')}.pptx`, filters: [{ name: 'PowerPoint', extensions: ['pptx'] }] })
     if (result.canceled || !result.filePath) return null
     await createPptx(project, result.filePath)
     return result.filePath
@@ -118,10 +102,7 @@ app.whenReady().then(() => {
 
   ipcMain.handle('export:pdf', async (_event, html: string, fileName: string) => {
     if (typeof html !== 'string' || html.length > 30_000_000) throw new Error('Export payload is too large.')
-    const result = await showSave({
-      defaultPath: `${safeName(fileName || 'presentation')}.pdf`,
-      filters: [{ name: 'PDF', extensions: ['pdf'] }],
-    })
+    const result = await showSave({ defaultPath: `${safeName(fileName || 'presentation')}.pdf`, filters: [{ name: 'PDF', extensions: ['pdf'] }] })
     if (result.canceled || !result.filePath) return null
     const exportWindow = new BrowserWindow({ show: false, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false } })
     try {
@@ -136,10 +117,7 @@ app.whenReady().then(() => {
 
   ipcMain.handle('export:png', async (_event, svg: string, fileName: string) => {
     if (typeof svg !== 'string' || !svg.startsWith('<svg')) throw new Error('Invalid SVG export.')
-    const result = await showSave({
-      defaultPath: `${safeName(fileName || 'page')}.png`,
-      filters: [{ name: 'PNG image', extensions: ['png'] }],
-    })
+    const result = await showSave({ defaultPath: `${safeName(fileName || 'page')}.png`, filters: [{ name: 'PNG image', extensions: ['png'] }] })
     if (result.canceled || !result.filePath) return null
     const dataUrl = `data:image/svg+xml;base64,${Buffer.from(svg, 'utf8').toString('base64')}`
     const image = nativeImage.createFromDataURL(dataUrl)
