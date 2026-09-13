@@ -13,14 +13,17 @@ type Point = { x: number; y: number }
 function pointFromEvent(svg: SVGSVGElement, event: ReactPointerEvent<SVGSVGElement>): Point {
   const rect = svg.getBoundingClientRect()
   const viewBox = svg.viewBox.baseVal
-  return { x: (event.clientX - rect.left) / rect.width * viewBox.width, y: (event.clientY - rect.top) / rect.height * viewBox.height }
+  return {
+    x: Math.max(0, Math.min(viewBox.width, (event.clientX - rect.left) / rect.width * viewBox.width)),
+    y: Math.max(0, Math.min(viewBox.height, (event.clientY - rect.top) / rect.height * viewBox.height)),
+  }
 }
 
 function moveElement(element: Element, dx: number, dy: number, pageWidth: number, pageHeight: number): Element {
   const x = Math.max(0, Math.min(pageWidth - element.width, element.x + dx))
   const y = Math.max(0, Math.min(pageHeight - element.height, element.y + dy))
   if (element.type !== 'drawing') return { ...element, x, y }
-  const points = element.points.map((point) => ({ x: point.x + dx, y: point.y + dy }))
+  const points = element.points.map((point) => ({ x: Math.max(0, Math.min(pageWidth, point.x + dx)), y: Math.max(0, Math.min(pageHeight, point.y + dy)) }))
   return { ...element, x, y, points }
 }
 
@@ -49,7 +52,7 @@ export function EditorCanvas() {
     const elementId = target.dataset.elementId
     const resizeHandle = target.dataset.resizeHandle
 
-    if (resizeHandle && selectedElementId) {
+    if (resizeHandle && selectedElementId && tool === 'select') {
       const element = page.elements.find((item) => item.id === selectedElementId)
       if (element) {
         svgRef.current?.setPointerCapture(event.pointerId)
@@ -78,22 +81,26 @@ export function EditorCanvas() {
     }
 
     if (tool === 'pen' || tool === 'highlighter') {
-      svgRef.current?.setPointerCapture(event.pointerId)
+      event.currentTarget.setPointerCapture(event.pointerId)
       setDrawing([point])
       return
     }
 
     if (tool === 'text') {
-      const text: TextElement = { id: uid('text'), type: 'text', x: point.x, y: point.y, width: 4.2, height: 0.7, rotation: 0, text: 'Double-click to edit', fontFamily: 'Arial', fontSize: 0.48, fontWeight: 600, fill: '#111827' }
+      const width = Math.min(4.2, page.width)
+      const height = Math.min(0.7, page.height)
+      const x = Math.max(0, Math.min(page.width - width, point.x))
+      const y = Math.max(0, Math.min(page.height - height, point.y))
+      const text: TextElement = { id: uid('text'), type: 'text', x, y, width, height, rotation: 0, text: 'Double-click to edit', fontFamily: 'Arial', fontSize: 0.48, fontWeight: 600, fill: '#111827' }
       addElement(text)
-      useEditorStore.getState().setTool('select')
       return
     }
 
     if (tool === 'shape') {
-      const shape: ShapeElement = { id: uid('shape'), type: 'shape', x: point.x, y: point.y, width: Math.min(3.2, page.width - point.x), height: Math.min(1.8, page.height - point.y), rotation: 0, fill: '#eef2ff', stroke: '#4f46e5', strokeWidth: 0.025, radius: 0.08 }
+      const width = Math.min(3.2, page.width - point.x)
+      const height = Math.min(1.8, page.height - point.y)
+      const shape: ShapeElement = { id: uid('shape'), type: 'shape', x: point.x, y: point.y, width: Math.max(0.2, width), height: Math.max(0.2, height), rotation: 0, fill: '#eef2ff', stroke: '#4f46e5', strokeWidth: 0.025, radius: 0.08 }
       addElement(shape)
-      useEditorStore.getState().setTool('select')
     }
   }
 
@@ -105,10 +112,21 @@ export function EditorCanvas() {
     const point = pointerPoint(event)
     if (drawing.length > 1) {
       const isHighlighter = tool === 'highlighter'
-      const item: DrawingElement = { id: uid('draw'), type: 'drawing', x: drawing[0].x, y: drawing[0].y, width: page.width, height: page.height, rotation: 0, points: drawing, stroke: isHighlighter ? '#facc15' : '#111827', strokeWidth: isHighlighter ? 0.18 : 0.04, opacity: isHighlighter ? 0.35 : 1 }
+      const item: DrawingElement = {
+        id: uid('draw'),
+        type: 'drawing',
+        x: drawing[0].x,
+        y: drawing[0].y,
+        width: page.width,
+        height: page.height,
+        rotation: 0,
+        points: drawing,
+        stroke: isHighlighter ? '#facc15' : '#111827',
+        strokeWidth: isHighlighter ? 0.18 : 0.04,
+        opacity: isHighlighter ? 0.35 : 1,
+      }
       addElement(item)
       setDrawing([])
-      useEditorStore.getState().setTool('select')
       return
     }
     if (interaction) {
@@ -139,16 +157,25 @@ export function EditorCanvas() {
   return (
     <main className="workspace">
       <div className="canvas-scroll">
-        <div className="canvas-stage" style={{ transform: `scale(${zoom})` }}>
-          <svg ref={svgRef} className="page-canvas" viewBox={`0 0 ${page.width} ${page.height}`} onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}>
+        <div className="canvas-stage" style={{ transform: `scale(${zoom})`, width: `min(100%, 1280px)`, aspectRatio: `${page.width} / ${page.height}` }}>
+          <svg
+            ref={svgRef}
+            className="page-canvas"
+            viewBox={`0 0 ${page.width} ${page.height}`}
+            preserveAspectRatio="none"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerUp}
+          >
             <rect width="100%" height="100%" fill={page.background} pointerEvents="all" />
             {page.elements.map(renderElement)}
             {drawing.length > 1 && <polyline points={drawing.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={tool === 'highlighter' ? '#facc15' : '#111827'} strokeWidth={tool === 'highlighter' ? 0.18 : 0.04} opacity={tool === 'highlighter' ? 0.35 : 1} strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" />}
-            {selected && !interaction && selected.type !== 'drawing' && <g><rect x={selected.x - 0.06} y={selected.y - 0.06} width={selected.width + 0.12} height={selected.height + 0.12} fill="none" stroke="#4f46e5" strokeWidth="0.018" strokeDasharray="0.08 0.06" pointerEvents="none" /><rect data-resize-handle="br" x={selected.x + selected.width - 0.08} y={selected.y + selected.height - 0.08} width="0.16" height="0.16" fill="#ffffff" stroke="#4f46e5" strokeWidth="0.02" /></g>}
+            {selected && !interaction && selected.type !== 'drawing' && tool === 'select' && <g><rect x={selected.x - 0.06} y={selected.y - 0.06} width={selected.width + 0.12} height={selected.height + 0.12} fill="none" stroke="#4f46e5" strokeWidth="0.018" strokeDasharray="0.08 0.06" pointerEvents="none" /><rect data-resize-handle="br" x={selected.x + selected.width - 0.08} y={selected.y + selected.height - 0.08} width="0.16" height="0.16" fill="#ffffff" stroke="#4f46e5" strokeWidth="0.02" /></g>}
           </svg>
         </div>
       </div>
-      <div className="statusbar"><span>{page.name}</span><span>{page.elements.length} elements</span><span>{Math.round(zoom * 100)}%</span></div>
+      <div className="statusbar"><span>{page.name}</span><span>{page.elements.length} elements</span><span>{Math.round(zoom * 100)}%</span><span className="tool-status">{tool === 'select' ? 'Select' : tool === 'pen' ? 'Pen' : tool === 'highlighter' ? 'Highlighter' : tool === 'text' ? 'Text' : tool === 'shape' ? 'Shape' : 'Eraser'}</span></div>
     </main>
   )
 }
