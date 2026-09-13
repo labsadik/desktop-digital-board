@@ -7,6 +7,7 @@ declare global {
       saveProject(project: Project): Promise<string | null>
       importImage(): Promise<string | null>
       importPdf(): Promise<string | null>
+      importPptx(): Promise<string | null>
       exportPptx(project: Project): Promise<string | null>
       exportPdf(html: string, fileName: string): Promise<string | null>
       exportPng(svg: string, fileName: string): Promise<string | null>
