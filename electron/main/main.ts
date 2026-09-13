@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, nativeImage, shell } from 'electron'
+import { app, BrowserWindow, Menu, dialog, ipcMain, nativeImage, shell } from 'electron'
 import path from 'node:path'
 import fs from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
@@ -15,7 +15,7 @@ function createWindow() {
     minWidth: 1100,
     minHeight: 700,
     title: 'Note Replace',
-    backgroundColor: '#0b0d12',
+    backgroundColor: '#f5f7fb',
     webPreferences: { preload: path.join(__dirname, '../preload/preload.js'), contextIsolation: true, sandbox: false, nodeIntegration: false, spellcheck: true },
   })
   mainWindow.setMenuBarVisibility(false)
@@ -41,6 +41,7 @@ async function writeAtomic(targetPath: string, data: string | Uint8Array) {
 async function makeTempDir() { return fs.mkdtemp(path.join(app.getPath('temp'), 'note-replace-')) }
 
 app.whenReady().then(() => {
+  Menu.setApplicationMenu(null)
   ipcMain.handle('file:open-project', async () => {
     const result = await showOpen({ properties: ['openFile'], filters: [{ name: 'Note Replace Project', extensions: ['myed', 'json'] }] })
     if (result.canceled || !result.filePaths[0]) return null
