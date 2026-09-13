@@ -3,17 +3,19 @@ import type { Element, Project, Page } from '../types/document'
 import { createPage, createProject } from '../core/document'
 import { uid } from '../utils/id'
 
-type Tool = 'select' | 'pen' | 'highlighter' | 'text' | 'shape' | 'eraser'
+type Tool = 'select' | 'pen' | 'highlighter' | 'shape' | 'eraser'
 
 interface EditorState {
   project: Project
   currentPageId: string
   selectedElementId: string | null
   tool: Tool
+  penColor: string
   zoom: number
   past: Project[]
   future: Project[]
   setTool: (tool: Tool) => void
+  setPenColor: (color: string) => void
   selectPage: (id: string) => void
   selectElement: (id: string | null) => void
   addPage: () => void
@@ -47,10 +49,12 @@ export const useEditorStore = create<EditorState>((set) => {
     currentPageId: initial.pages[0].id,
     selectedElementId: null,
     tool: 'select',
+    penColor: '#111827',
     zoom: 1,
     past: [],
     future: [],
     setTool: (tool) => set({ tool, selectedElementId: null }),
+    setPenColor: (penColor) => set({ penColor }),
     selectPage: (id) => set({ currentPageId: id, selectedElementId: null }),
     selectElement: (id) => set({ selectedElementId: id }),
     addPage: () => set((state) => {
