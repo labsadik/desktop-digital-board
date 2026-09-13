@@ -55,7 +55,7 @@ export const useEditorStore = create<EditorState>((set) => {
     future: [],
     setTool: (tool) => set({ tool, selectedElementId: null }),
     setPenColor: (penColor) => set({ penColor }),
-    selectPage: (id) => set({ currentPageId: id, selectedElementId: null }),
+    selectPage: (id) => set((state) => state.project.pages.some((page) => page.id === id) ? { currentPageId: id, selectedElementId: null } : state),
     selectElement: (id) => set({ selectedElementId: id }),
     addPage: () => set((state) => {
       const page = createPage(state.project.pages.length, state.project.width, state.project.height)
@@ -76,8 +76,11 @@ export const useEditorStore = create<EditorState>((set) => {
     deletePage: () => set((state) => {
       if (state.project.pages.length <= 1) return state
       const index = state.project.pages.findIndex((p) => p.id === state.currentPageId)
+      if (index < 0) return state
       const pages = state.project.pages.filter((p) => p.id !== state.currentPageId)
-      const next = pages[Math.max(0, Math.min(index, pages.length - 1))]
+      const nextIndex = Math.max(0, Math.min(index, pages.length - 1))
+      const next = pages[nextIndex]
+      if (!next) return state
       return commit(state, { ...state.project, pages }, { currentPageId: next.id, selectedElementId: null })
     }),
     movePage: (from, to) => set((state) => {
@@ -90,8 +93,12 @@ export const useEditorStore = create<EditorState>((set) => {
     renamePage: (id, name) => set((state) => commit(state, { ...state.project, pages: state.project.pages.map((page) => page.id === id ? { ...page, name } : page) })),
     addElement: (element) => set((state) => commit(state, { ...state.project, pages: state.project.pages.map((p) => p.id === state.currentPageId ? { ...p, elements: [...p.elements, element] } : p) }, { selectedElementId: element.id })),
     updateElement: (pageId, elementId, patch) => set((state) => commit(state, { ...state.project, pages: state.project.pages.map((p) => p.id === pageId ? { ...p, elements: p.elements.map((item) => item.id === elementId ? ({ ...item, ...patch } as Element) : item) } : p) }, { selectedElementId: elementId })),
-    removeElement: (pageId, elementId) => set((state) => commit(state, { ...state.project, pages: state.project.pages.map((p) => p.id === pageId ? { ...p, elements: p.elements.filter((item) => item.id !== elementId) } : p) }, { selectedElementId: null })),
-    loadProject: (project) => set({ project, currentPageId: project.pages[0]?.id ?? '', selectedElementId: null, past: [], future: [] }),
+    removeElement: (pageId, elementId) => set((state) => {
+      const page = state.project.pages.find((item) => item.id === pageId)
+      if (!page || !page.elements.some((item) => item.id === elementId)) return state
+      return commit(state, { ...state.project, pages: state.project.pages.map((p) => p.id === pageId ? { ...p, elements: p.elements.filter((item) => item.id !== elementId) } : p) }, { selectedElementId: null })
+    }),
+    loadProject: (project) => set({ project, currentPageId: project.pages[0]?.id ?? '', selectedElementId: null, past: [], future: [], tool: 'select' }),
     setProjectName: (name) => set((state) => ({ project: { ...state.project, name } })),
     setZoom: (zoom) => set({ zoom: Math.max(0.25, Math.min(2, zoom)) }),
     undo: () => set((state) => {
