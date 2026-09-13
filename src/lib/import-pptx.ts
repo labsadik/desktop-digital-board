@@ -23,19 +23,20 @@ function num(value: unknown, fallback = 0) {
 }
 
 function readText(sp: any) {
-  const runs = arr(sp?.txBody?.p?.r)
-  const direct = sp?.txBody?.p?.['#text']
-  const text = runs.map((run: any) => String(run?.t ?? '')).join('')
-  return text || String(direct ?? '')
+  const paragraphs = arr(sp?.txBody?.p)
+  return paragraphs.map((p: any) => {
+    const runs = arr(p?.r)
+    return runs.map((run: any) => String(run?.t ?? '')).join('') || String(p?.['#text'] ?? '')
+  }).filter(Boolean).join('\n')
 }
 
 function readGeometry(sp: any, slideWidth: number, slideHeight: number) {
-  const xfrm = sp?.spPr?.xfrm
+  const xfrm = sp?.spPr?.xfrm ?? {}
   const off = xfrm?.off ?? {}
   const ext = xfrm?.ext ?? {}
   return {
-    x: Math.max(0, num(off['@_x']) / EMU_PER_INCH),
-    y: Math.max(0, num(off['@_y']) / EMU_PER_INCH),
+    x: Math.max(0, Math.min(slideWidth, num(off['@_x']) / EMU_PER_INCH)),
+    y: Math.max(0, Math.min(slideHeight, num(off['@_y']) / EMU_PER_INCH)),
     width: Math.max(0.15, Math.min(slideWidth, num(ext['@_cx']) / EMU_PER_INCH)),
     height: Math.max(0.15, Math.min(slideHeight, num(ext['@_cy']) / EMU_PER_INCH)),
   }
@@ -44,7 +45,24 @@ function readGeometry(sp: any, slideWidth: number, slideHeight: number) {
 function readFill(sp: any) {
   const solid = sp?.spPr?.solidFill
   const rgb = solid?.srgbClr?.['@_val']
-  return rgb ? `#${rgb}` : '#ffffff'
+  return rgb ? `#${rgb}` : '#e5e7eb'
+}
+
+function esc(value: string) {
+  return value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+}
+
+function buildSlideImage(width: number, height: number, elements: Array<TextElement | ShapeElement>) {
+  const content = elements.map((element) => {
+    if (element.type === 'text') {
+      const lines = element.text.split(/\r?\n/)
+      const tspans = lines.map((line, index) => `<tspan x="${element.x}" dy="${index === 0 ? 0 : element.fontSize * 1.2}">${esc(line)}</tspan>`).join('')
+      return `<text x="${element.x}" y="${element.y + element.fontSize}" font-family="${esc(element.fontFamily)}" font-size="${element.fontSize}" font-weight="${element.fontWeight}" fill="${element.fill}">${tspans}</text>`
+    }
+    return `<rect x="${element.x}" y="${element.y}" width="${element.width}" height="${element.height}" rx="${element.radius ?? 0}" fill="${element.fill}" stroke="${element.stroke}" stroke-width="${element.strokeWidth}"/>`
+  }).join('')
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}in" height="${height}in" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#ffffff"/>${content}</svg>`
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }
 
 export async function importPptxProject(dataUrl: string): Promise<Project> {
@@ -78,28 +96,9 @@ export async function importPptxProject(dataUrl: string): Promise<Project> {
       const geometry = readGeometry(sp, projectWidth, projectHeight)
       const text = readText(sp).trim()
       if (text) {
-        elements.push({
-          id: uid('text'),
-          type: 'text',
-          ...geometry,
-          rotation: 0,
-          text,
-          fontFamily: 'Arial',
-          fontSize: 0.28,
-          fontWeight: 500,
-          fill: '#111827',
-        })
+        elements.push({ id: uid('text'), type: 'text', ...geometry, rotation: 0, text, fontFamily: 'Arial', fontSize: 0.28, fontWeight: 500, fill: '#111827' })
       } else {
-        elements.push({
-          id: uid('shape'),
-          type: 'shape',
-          ...geometry,
-          rotation: 0,
-          fill: readFill(sp),
-          stroke: '#64748b',
-          strokeWidth: 0.012,
-          radius: 0.02,
-        })
+        elements.push({ id: uid('shape'), type: 'shape', ...geometry, rotation: 0, fill: readFill(sp), stroke: '#64748b', strokeWidth: 0.012, radius: 0.02 })
       }
     }
 
@@ -109,7 +108,7 @@ export async function importPptxProject(dataUrl: string): Promise<Project> {
       width: projectWidth,
       height: projectHeight,
       background: '#ffffff',
-      elements,
+      elements: [{ id: uid('image'), type: 'image', x: 0, y: 0, width: projectWidth, height: projectHeight, rotation: 0, src: buildSlideImage(projectWidth, projectHeight, elements) }],
     })
   }
 
