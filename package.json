@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "vite preview --host 127.0.0.1",
-    "dist": "npm run build && electron-builder --publish never"
+    "clean:release": "node scripts/clean-release.mjs",
+    "dist": "npm run build && npm run clean:release && electron-builder --publish never"
   },
   "dependencies": {
     "fast-xml-parser": "latest",
