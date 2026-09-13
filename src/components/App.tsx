@@ -1,3 +1,4 @@
+import { FilePresentation, FileText, FilePlus2, LoaderCircle } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { FloatingTools, Toolbar } from './Toolbar'
 import { PageSidebar } from './PageSidebar'
@@ -18,20 +19,44 @@ export function App() {
   const selectedElementId = useEditorStore((s) => s.selectedElementId)
   const removeElement = useEditorStore((s) => s.removeElement)
   const setTool = useEditorStore((s) => s.setTool)
+  const addPage = useEditorStore((s) => s.addPage)
   const [busy, setBusy] = useState(false)
+  const [progress, setProgress] = useState(0)
   const [message, setMessage] = useState('Ready')
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true)
+  const [showStart, setShowStart] = useState(true)
   const page = useMemo(() => project.pages.find((item) => item.id === currentPageId) ?? project.pages[0], [project.pages, currentPageId])
-  const run = async (label: string, task: () => Promise<string | null | void>) => { setBusy(true); setMessage(label); try { const result = await task(); setMessage(typeof result === 'string' ? `Saved: ${result}` : 'Ready') } catch (error) { setMessage(error instanceof Error ? error.message : 'Operation failed') } finally { setBusy(false) } }
-  const save = () => run(project.sourceFormat === 'pdf' ? 'Saving PDF…' : project.sourceFormat === 'pptx' ? 'Saving PowerPoint…' : 'Saving project…', async () => project.sourceFormat === 'pdf' ? window.desktop.exportPdf(projectToPdfHtml(project), project.name) : project.sourceFormat === 'pptx' ? window.desktop.exportPptx(project) : window.desktop.saveProject(project))
-  const open = () => run('Opening…', async () => { const loaded = await window.desktop.openProject(); if (loaded) loadProject(loaded); return null })
-  const importPdf = () => run('Importing PDF…', async () => { const dataUrl = await window.desktop.importPdf(); if (dataUrl) loadProject(await importPdfProject(dataUrl)); return null })
-  const importPptx = () => run('Importing PowerPoint…', async () => { const dataUrl = await window.desktop.importPptx(); if (dataUrl) loadProject(await importPptxProject(dataUrl)); return null })
-  const importImage = () => run('Importing image…', async () => { const src = await window.desktop.importImage(); if (!src) return null; useEditorStore.getState().addElement({ id: crypto.randomUUID(), type: 'image', x: 1, y: 1, width: 4, height: 2.5, rotation: 0, src }); return null })
-  const exportPdf = () => run('Exporting PDF…', () => window.desktop.exportPdf(projectToPdfHtml(project), project.name))
-  const exportPptx = () => run('Exporting PowerPoint…', () => window.desktop.exportPptx(project))
-  const exportPng = () => run('Exporting PNG…', async () => page ? window.desktop.exportPng(pageToSvg(page), `${project.name}-${page.name}`) : null)
+
+  const run = async (label: string, task: () => Promise<string | null | void>) => {
+    setBusy(true)
+    setProgress(8)
+    setMessage(label)
+    const interval = window.setInterval(() => setProgress((value) => Math.min(92, value + Math.max(1, (92 - value) * 0.08))), 120)
+    try {
+      const result = await task()
+      setProgress(100)
+      setMessage(typeof result === 'string' ? `Saved: ${result}` : 'Ready')
+      return result
+    } catch (error) {
+      setProgress(100)
+      setMessage(error instanceof Error ? error.message : 'Operation failed')
+      throw error
+    } finally {
+      window.clearInterval(interval)
+      window.setTimeout(() => { setBusy(false); setProgress(0) }, 260)
+    }
+  }
+
+  const save = () => void run(project.sourceFormat === 'pdf' ? 'Preparing PDF…' : project.sourceFormat === 'pptx' ? 'Preparing PowerPoint…' : 'Preparing project…', async () => project.sourceFormat === 'pdf' ? window.desktop.exportPdf(projectToPdfHtml(project), project.name) : project.sourceFormat === 'pptx' ? window.desktop.exportPptx(project) : window.desktop.saveProject(project))
+  const open = () => void run('Opening project…', async () => { const loaded = await window.desktop.openProject(); if (loaded) loadProject(loaded); return null })
+  const importPdf = () => void run('Preparing PDF import…', async () => { const dataUrl = await window.desktop.importPdf(); if (!dataUrl) return null; loadProject(await importPdfProject(dataUrl)); setShowStart(false); return null })
+  const importPptx = () => void run('Preparing PowerPoint import…', async () => { const dataUrl = await window.desktop.importPptx(); if (!dataUrl) return null; loadProject(await importPptxProject(dataUrl)); setShowStart(false); return null })
+  const importImage = () => void run('Importing image…', async () => { const src = await window.desktop.importImage(); if (!src) return null; useEditorStore.getState().addElement({ id: crypto.randomUUID(), type: 'image', x: 1, y: 1, width: 4, height: 2.5, rotation: 0, src }); return null })
+  const exportPdf = () => void run('Preparing PDF export…', () => window.desktop.exportPdf(projectToPdfHtml(project), project.name))
+  const exportPptx = () => void run('Preparing PowerPoint export…', () => window.desktop.exportPptx(project))
+  const exportPng = () => void run('Preparing PNG export…', async () => page ? window.desktop.exportPng(pageToSvg(page), `${project.name}-${page.name}`) : null)
+
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
@@ -44,11 +69,22 @@ export function App() {
       const mod = event.ctrlKey || event.metaKey
       if (mod && event.key.toLowerCase() === 'z') { event.preventDefault(); undo(); return }
       if (mod && event.key.toLowerCase() === 'y') { event.preventDefault(); redo(); return }
-      if (mod && event.key.toLowerCase() === 's') { event.preventDefault(); void save(); return }
+      if (mod && event.key.toLowerCase() === 's') { event.preventDefault(); save(); return }
       if (!typing && (event.key === 'Delete' || event.key === 'Backspace') && selectedElementId) { event.preventDefault(); removeElement(currentPageId, selectedElementId) }
     }
-    window.addEventListener('keydown', handler); return () => window.removeEventListener('keydown', handler)
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
   }, [currentPageId, removeElement, redo, save, selectedElementId, setTool, undo])
+
   const saveLabel = project.sourceFormat === 'pdf' ? 'Save PDF' : project.sourceFormat === 'pptx' ? 'Save PPTX' : 'Save Project'
-  return <div className="app-shell"><Toolbar saveLabel={saveLabel} onSave={save} onOpen={open} onImportPdf={importPdf} onImportPptx={importPptx} onExportPptx={exportPptx} onExportPdf={exportPdf} onExportPng={exportPng} onImage={importImage} leftSidebarOpen={leftSidebarOpen} rightSidebarOpen={rightSidebarOpen} onToggleLeftSidebar={() => setLeftSidebarOpen((value) => !value)} onToggleRightSidebar={() => setRightSidebarOpen((value) => !value)} /><div className="editor-layout">{leftSidebarOpen && <PageSidebar />}<div className="canvas-column"><EditorCanvas /><FloatingTools /></div>{rightSidebarOpen && <aside className="right-panel"><div className="panel-title">Document</div><label>Project name<input value={project.name} onChange={(event) => setProjectName(event.target.value)} /></label>{page && <label>Page name<input value={page.name} onChange={(event) => renamePage(page.id, event.target.value)} /></label>}<div className="panel-card"><strong>Canvas</strong><span>{project.width.toFixed(2)} × {project.height.toFixed(2)} in</span><span>{project.pages.length} pages</span><span>{page?.elements.length ?? 0} elements</span></div><div className="panel-card"><strong>Source</strong><span>{project.sourceFormat === 'pdf' ? 'Imported PDF' : project.sourceFormat === 'pptx' ? 'Imported PowerPoint' : 'Native Note Replace project'}</span></div><div className="panel-card"><strong>Saving</strong><span>Save opens the Windows save dialog.</span><span>Ctrl/Cmd+S saves in the current format.</span></div></aside>}</div><div className="app-status"><span>{busy ? '● Working' : '● Ready'} — {message}</span><span>{project.pages.length} pages • {page?.elements.length ?? 0} elements</span></div></div>
+  const chooseBlank = () => { setShowStart(false); if (project.pages.length === 1 && project.pages[0].elements.length === 0) return; addPage() }
+
+  return <div className="app-shell">
+    <Toolbar saveLabel={saveLabel} onSave={save} onOpen={open} onImportPdf={importPdf} onImportPptx={importPptx} onExportPptx={exportPptx} onExportPdf={exportPdf} onExportPng={exportPng} onImage={importImage} leftSidebarOpen={leftSidebarOpen} rightSidebarOpen={rightSidebarOpen} onToggleLeftSidebar={() => setLeftSidebarOpen((value) => !value)} onToggleRightSidebar={() => setRightSidebarOpen((value) => !value)} />
+    <div className="editor-layout">{leftSidebarOpen && <PageSidebar />}<div className="canvas-column"><EditorCanvas /><FloatingTools /></div>{rightSidebarOpen && <aside className="right-panel"><div className="panel-title">Document</div><label>Project name<input value={project.name} onChange={(event) => setProjectName(event.target.value)} /></label>{page && <label>Page name<input value={page.name} onChange={(event) => renamePage(page.id, event.target.value)} /></label>}<div className="panel-card"><strong>Canvas</strong><span>{project.width.toFixed(2)} × {project.height.toFixed(2)} in</span><span>{project.pages.length} pages</span><span>{page?.elements.length ?? 0} elements</span></div><div className="panel-card"><strong>Source</strong><span>{project.sourceFormat === 'pdf' ? 'Imported PDF' : project.sourceFormat === 'pptx' ? 'Imported PowerPoint' : 'Native Note Replace project'}</span></div><div className="panel-card"><strong>Saving</strong><span>Import and export are prepared before the file dialog opens.</span><span>Ctrl/Cmd+S saves in the current format.</span></div></aside>}</div>
+    <div className="app-status"><span>{busy ? '● Working' : '● Ready'} — {message}</span><span>{project.pages.length} pages • {page?.elements.length ?? 0} elements</span></div>
+
+    {showStart && <div className="start-overlay"><div className="start-card"><div className="start-brand"><span className="brand-mark">NR</span><div><strong>Note Replace</strong><span>Fast desktop document workspace</span></div></div><div className="start-title"><h1>What are you creating?</h1><p>Start from an existing document or open a clean blank canvas.</p></div><div className="start-options"><button type="button" className="start-option" onClick={importPdf}><span className="start-icon pdf"><FileText size={28} /></span><span><strong>Import PDF</strong><small>Turn every PDF page into an editable workspace.</small></span><span className="start-arrow">→</span></button><button type="button" className="start-option" onClick={importPptx}><span className="start-icon ppt"><FilePresentation size={28} /></span><span><strong>Import PowerPoint</strong><small>Bring a presentation into the page editor.</small></span><span className="start-arrow">→</span></button><button type="button" className="start-option" onClick={chooseBlank}><span className="start-icon blank"><FilePlus2 size={28} /></span><span><strong>Blank canvas</strong><small>Open a fresh white page and add pages only when needed.</small></span><span className="start-arrow">→</span></button></div><div className="start-footer">Your document stays local to this desktop app until you export or save it.</div></div></div>}
+    {busy && <div className="progress-overlay"><div className="progress-card"><div className="progress-spinner"><LoaderCircle size={25} /></div><div className="progress-copy"><strong>{message}</strong><span>Preparing the document without freezing the editor…</span></div><b>{progress}%</b><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div></div>}
+  </div>
 }
