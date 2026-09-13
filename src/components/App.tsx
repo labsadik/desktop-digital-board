@@ -17,6 +17,7 @@ export function App() {
   const redo = useEditorStore((s) => s.redo)
   const selectedElementId = useEditorStore((s) => s.selectedElementId)
   const removeElement = useEditorStore((s) => s.removeElement)
+  const setTool = useEditorStore((s) => s.setTool)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('Ready')
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
@@ -45,18 +46,23 @@ export function App() {
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      const typing = target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.isContentEditable
+      if (!typing && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        const shortcuts: Record<string, Parameters<typeof setTool>[0]> = { v: 'select', p: 'pen', h: 'highlighter', t: 'text', r: 'shape', e: 'eraser' }
+        const nextTool = shortcuts[event.key.toLowerCase()]
+        if (nextTool) { event.preventDefault(); setTool(nextTool); return }
+      }
       const mod = event.ctrlKey || event.metaKey
       if (mod && event.key.toLowerCase() === 'z') { event.preventDefault(); undo(); return }
       if (mod && event.key.toLowerCase() === 'y') { event.preventDefault(); redo(); return }
       if (mod && event.key.toLowerCase() === 's') { event.preventDefault(); void save(); return }
-      if ((event.key === 'Delete' || event.key === 'Backspace') && selectedElementId) {
-        const tag = (event.target as HTMLElement | null)?.tagName
-        if (tag === 'INPUT' || tag === 'TEXTAREA') return
+      if (!typing && (event.key === 'Delete' || event.key === 'Backspace') && selectedElementId) {
         event.preventDefault(); removeElement(currentPageId, selectedElementId)
       }
     }
     window.addEventListener('keydown', handler); return () => window.removeEventListener('keydown', handler)
-  }, [currentPageId, removeElement, redo, save, selectedElementId, undo])
+  }, [currentPageId, removeElement, redo, save, selectedElementId, setTool, undo])
 
   const saveLabel = project.sourceFormat === 'pdf' ? 'Save PDF' : project.sourceFormat === 'pptx' ? 'Save PPTX' : 'Save Project'
 
