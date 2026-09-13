@@ -1,5 +1,7 @@
 appId: com.notereplace.desktop
 productName: Note Replace
+directories:
+  output: release
 files:
   - dist/**
   - dist-electron/**
@@ -9,3 +11,4 @@ mac:
   target: dmg
 linux:
   target: AppImage
+publish: never
