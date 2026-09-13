@@ -5,12 +5,22 @@ import process from 'node:process'
 
 if (process.platform === 'win32') {
   try {
-    execFileSync('taskkill', ['/F', '/IM', 'Note Replace.exe'], { stdio: 'ignore' })
+    execFileSync('taskkill', ['/F', '/T', '/IM', 'Note Replace.exe'], {
+      stdio: 'ignore',
+      timeout: 5000,
+      windowsHide: true,
+    })
   } catch {
-    // The app is not running; continue.
+    // Process is not running or Windows cleanup timed out; continue.
   }
 }
 
 const releaseDir = path.resolve('release')
-await rm(releaseDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 250 })
+await rm(releaseDir, {
+  recursive: true,
+  force: true,
+  maxRetries: 10,
+  retryDelay: 250,
+})
+
 console.log(`Cleaned ${releaseDir}`)
