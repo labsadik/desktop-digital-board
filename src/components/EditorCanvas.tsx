@@ -12,8 +12,6 @@ type Point = { x: number; y: number }
 
 function pointFromEvent(svg: SVGSVGElement, event: ReactPointerEvent<SVGSVGElement>): Point {
   const rect = svg.getBoundingClientRect()
-  const x = (event.clientX - rect.left) / rect.width * 13.333
-  const y = (event.clientY - rect.top) / rect.height * 7.5
   const viewBox = svg.viewBox.baseVal
   return { x: (event.clientX - rect.left) / rect.width * viewBox.width, y: (event.clientY - rect.top) / rect.height * viewBox.height }
 }
@@ -100,16 +98,7 @@ export function EditorCanvas() {
   }
 
   const onPointerMove = (event: ReactPointerEvent<SVGSVGElement>) => {
-    const point = pointerPoint(event)
-    if (drawing.length > 0) {
-      setDrawing((current) => [...current, point])
-      return
-    }
-    if (interaction) {
-      const dx = point.x - interaction.pointerStart.x
-      const dy = point.y - interaction.pointerStart.y
-      if (interaction.mode === 'resize') return
-    }
+    if (drawing.length > 0) setDrawing((current) => [...current, pointerPoint(event)])
   }
 
   const onPointerUp = (event: ReactPointerEvent<SVGSVGElement>) => {
@@ -126,8 +115,7 @@ export function EditorCanvas() {
       const dx = point.x - interaction.pointerStart.x
       const dy = point.y - interaction.pointerStart.y
       if (interaction.mode === 'move' && Math.abs(dx) + Math.abs(dy) > 0.01) {
-        const moved = moveElement(interaction.element, dx, dy, page.width, page.height)
-        updateElement(page.id, interaction.element.id, moved)
+        updateElement(page.id, interaction.element.id, moveElement(interaction.element, dx, dy, page.width, page.height))
       } else if (interaction.mode === 'resize') {
         const width = Math.max(0.2, Math.min(page.width - interaction.element.x, interaction.start.x + dx))
         const height = Math.max(0.2, Math.min(page.height - interaction.element.y, interaction.start.y + dy))
@@ -137,22 +125,13 @@ export function EditorCanvas() {
     }
   }
 
-  const visualElement = (element: Element): Element => {
-    if (!interaction || interaction.element.id !== element.id) return element
-    const point = pointerPoint as unknown as undefined
-    void point
-    return element
-  }
-
   const renderElement = (element: Element) => {
-    const active = selectedElementId === element.id && !interaction
-    const base = visualElement(element)
-    const className = active ? 'canvas-element selected' : 'canvas-element'
+    const className = selectedElementId === element.id ? 'canvas-element selected' : 'canvas-element'
     const common = { 'data-element-id': element.id, className }
-    if (base.type === 'text') return <text {...common} x={base.x} y={base.y + base.fontSize / 1.25} fontFamily={base.fontFamily} fontSize={base.fontSize} fontWeight={base.fontWeight} fill={base.fill} onDoubleClick={(event) => { event.stopPropagation(); const next = window.prompt('Edit text', base.text); if (next !== null) updateElement(page.id, base.id, { text: next }) }}>{base.text}</text>
-    if (base.type === 'shape') return <rect {...common} x={base.x} y={base.y} width={base.width} height={base.height} rx={base.radius ?? 0} fill={base.fill} stroke={base.stroke} strokeWidth={base.strokeWidth} />
-    if (base.type === 'image') return <image {...common} href={base.src} x={base.x} y={base.y} width={base.width} height={base.height} opacity={base.opacity ?? 1} preserveAspectRatio="none" />
-    return <polyline {...common} points={base.points.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={base.stroke} strokeWidth={base.strokeWidth} opacity={base.opacity} strokeLinecap="round" strokeLinejoin="round" />
+    if (element.type === 'text') return <text {...common} x={element.x} y={element.y + element.fontSize / 1.25} fontFamily={element.fontFamily} fontSize={element.fontSize} fontWeight={element.fontWeight} fill={element.fill} onDoubleClick={(event) => { event.stopPropagation(); const next = window.prompt('Edit text', element.text); if (next !== null) updateElement(page.id, element.id, { text: next }) }}>{element.text}</text>
+    if (element.type === 'shape') return <rect {...common} x={element.x} y={element.y} width={element.width} height={element.height} rx={element.radius ?? 0} fill={element.fill} stroke={element.stroke} strokeWidth={element.strokeWidth} />
+    if (element.type === 'image') return <image {...common} href={element.src} x={element.x} y={element.y} width={element.width} height={element.height} opacity={element.opacity ?? 1} preserveAspectRatio="none" />
+    return <polyline {...common} points={element.points.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={element.stroke} strokeWidth={element.strokeWidth} opacity={element.opacity} strokeLinecap="round" strokeLinejoin="round" />
   }
 
   const selected = page.elements.find((element) => element.id === selectedElementId)
@@ -165,7 +144,7 @@ export function EditorCanvas() {
             <rect width="100%" height="100%" fill={page.background} pointerEvents="all" />
             {page.elements.map(renderElement)}
             {drawing.length > 1 && <polyline points={drawing.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={tool === 'highlighter' ? '#facc15' : '#111827'} strokeWidth={tool === 'highlighter' ? 0.18 : 0.04} opacity={tool === 'highlighter' ? 0.35 : 1} strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" />}
-            {selected && !interaction && selected.type !== 'drawing' && <g pointerEvents="none"><rect x={selected.x - 0.06} y={selected.y - 0.06} width={selected.width + 0.12} height={selected.height + 0.12} fill="none" stroke="#4f46e5" strokeWidth="0.018" strokeDasharray="0.08 0.06" /><rect data-resize-handle="br" x={selected.x + selected.width - 0.08} y={selected.y + selected.height - 0.08} width="0.16" height="0.16" fill="#ffffff" stroke="#4f46e5" strokeWidth="0.02" pointerEvents="all" /></g>}
+            {selected && !interaction && selected.type !== 'drawing' && <g><rect x={selected.x - 0.06} y={selected.y - 0.06} width={selected.width + 0.12} height={selected.height + 0.12} fill="none" stroke="#4f46e5" strokeWidth="0.018" strokeDasharray="0.08 0.06" pointerEvents="none" /><rect data-resize-handle="br" x={selected.x + selected.width - 0.08} y={selected.y + selected.height - 0.08} width="0.16" height="0.16" fill="#ffffff" stroke="#4f46e5" strokeWidth="0.02" /></g>}
           </svg>
         </div>
       </div>
