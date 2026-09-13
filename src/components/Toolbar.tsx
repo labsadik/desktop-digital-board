@@ -1,4 +1,4 @@
-import { Copy, Download, Eraser, FilePlus2, FileUp, Highlighter, ImagePlus, Minus, MousePointer2, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PenLine, Plus, Redo2, Save, Square, Trash2, Type, Undo2, ZoomIn, ZoomOut } from 'lucide-react'
+import { Copy, Download, FilePlus2, FileUp, ImagePlus, Minus, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, Plus, Redo2, Save, Trash2, Undo2, ZoomIn, ZoomOut } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { useEditorStore } from '../stores/editor.store'
 
@@ -19,8 +19,6 @@ interface Props {
 }
 
 export function Toolbar({ saveLabel, onSave, onOpen, onImportPdf, onImportPptx, onExportPptx, onExportPdf, onExportPng, onImage, leftSidebarOpen, rightSidebarOpen, onToggleLeftSidebar, onToggleRightSidebar }: Props) {
-  const tool = useEditorStore((s) => s.tool)
-  const setTool = useEditorStore((s) => s.setTool)
   const addPage = useEditorStore((s) => s.addPage)
   const duplicatePage = useEditorStore((s) => s.duplicatePage)
   const deletePage = useEditorStore((s) => s.deletePage)
