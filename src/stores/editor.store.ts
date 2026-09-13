@@ -58,8 +58,11 @@ export const useEditorStore = create<EditorState>((set) => {
     selectPage: (id) => set((state) => state.project.pages.some((page) => page.id === id) ? { currentPageId: id, selectedElementId: null } : state),
     selectElement: (id) => set({ selectedElementId: id }),
     addPage: () => set((state) => {
-      const page = createPage(state.project.pages.length, state.project.width, state.project.height)
-      return commit(state, { ...state.project, pages: [...state.project.pages, page] }, { currentPageId: page.id, selectedElementId: null })
+      const index = state.project.pages.findIndex((page) => page.id === state.currentPageId)
+      const page = createPage(index < 0 ? state.project.pages.length : index + 1, state.project.width, state.project.height)
+      const pages = [...state.project.pages]
+      pages.splice(index < 0 ? pages.length : index + 1, 0, page)
+      return commit(state, { ...state.project, pages }, { currentPageId: page.id, selectedElementId: null })
     }),
     duplicatePage: () => set((state) => {
       const index = state.project.pages.findIndex((p) => p.id === state.currentPageId)
@@ -78,8 +81,7 @@ export const useEditorStore = create<EditorState>((set) => {
       const index = state.project.pages.findIndex((p) => p.id === state.currentPageId)
       if (index < 0) return state
       const pages = state.project.pages.filter((p) => p.id !== state.currentPageId)
-      const nextIndex = Math.max(0, Math.min(index, pages.length - 1))
-      const next = pages[nextIndex]
+      const next = pages[Math.max(0, Math.min(index, pages.length - 1))]
       if (!next) return state
       return commit(state, { ...state.project, pages }, { currentPageId: next.id, selectedElementId: null })
     }),
