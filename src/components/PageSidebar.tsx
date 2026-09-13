@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Copy, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, Copy, Plus, Trash2 } from 'lucide-react'
 import { useEditorStore } from '../stores/editor.store'
 
 export function PageSidebar() {
@@ -8,9 +8,10 @@ export function PageSidebar() {
   const movePage = useEditorStore((s) => s.movePage)
   const duplicatePage = useEditorStore((s) => s.duplicatePage)
   const deletePage = useEditorStore((s) => s.deletePage)
+  const addPage = useEditorStore((s) => s.addPage)
 
   return <aside className="sidebar">
-    <div className="sidebar-title">Pages <span>{pages.length}</span></div>
+    <div className="sidebar-title"><span className="sidebar-title-label">Pages <b>{pages.length}</b></span><button type="button" className="add-page-button" title="Add blank page" onClick={addPage}><Plus size={15} /><span>Add page</span></button></div>
     <div className="page-list">
       {pages.map((page, index) => <div key={page.id} className={`page-row ${current === page.id ? 'selected' : ''}`}>
         <button type="button" className="page-thumb" onClick={() => selectPage(page.id)} title={`Open ${page.name}`}>
@@ -35,6 +36,7 @@ export function PageSidebar() {
           <button type="button" title="Delete page" disabled={pages.length <= 1} onClick={() => { selectPage(page.id); deletePage() }}><Trash2 size={14} /></button>
         </div>
       </div>)}
+      <button type="button" className="page-add-card" onClick={addPage} title="Add a blank page"><span className="page-add-icon"><Plus size={22} /></span><span><strong>Add blank page</strong><small>New page after the current page</small></span></button>
     </div>
   </aside>
 }
