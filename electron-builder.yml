@@ -10,11 +10,15 @@ extraResources:
   - from: assets/logo.png
     to: assets/logo.png
 win:
-  target: nsis
-  icon: assets/logo.png
+  target:
+    - nsis
+  icon: logo.png
+  forceCodeSigning: false
 mac:
-  target: dmg
-  icon: assets/logo.png
+  target:
+    - dmg
+  icon: logo.png
 linux:
-  target: AppImage
-  icon: assets/logo.png
+  target:
+    - AppImage
+  icon: logo.png
