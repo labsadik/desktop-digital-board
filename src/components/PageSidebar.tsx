@@ -18,7 +18,12 @@ export function PageSidebar() {
           <div className="thumb-preview" style={{ background: page.background }}>
             <svg viewBox={`0 0 ${page.width} ${page.height}`}>
               <rect width="100%" height="100%" fill={page.background} />
-              {page.elements.filter((element) => element.type !== 'image').slice(0, 12).map((element) => element.type === 'text' ? <text key={element.id} x={element.x} y={element.y + element.fontSize / 1.25} fontSize={Math.max(0.22, element.fontSize / 18)} fill={element.fill}>{element.text.slice(0, 16)}</text> : element.type === 'shape' ? <rect key={element.id} x={element.x} y={element.y} width={element.width} height={element.height} rx={element.radius ?? 0} fill={element.fill} stroke={element.stroke} strokeWidth={element.strokeWidth} /> : <polyline key={element.id} points={element.points.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={element.stroke} strokeWidth={Math.max(element.strokeWidth, 0.025)} />)}
+              {page.elements.slice(0, 12).map((element) =>
+                element.type === 'image' ? <image key={element.id} href={element.src} x={element.x} y={element.y} width={element.width} height={element.height} preserveAspectRatio="xMidYMid slice" />
+                  : element.type === 'text' ? <text key={element.id} x={element.x} y={element.y + element.fontSize / 1.25} fontSize={Math.max(0.22, element.fontSize / 18)} fill={element.fill}>{element.text.slice(0, 16)}</text>
+                    : element.type === 'shape' ? <rect key={element.id} x={element.x} y={element.y} width={element.width} height={element.height} rx={element.radius ?? 0} fill={element.fill} stroke={element.stroke} strokeWidth={element.strokeWidth} />
+                      : <polyline key={element.id} points={element.points.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={element.stroke} strokeWidth={Math.max(element.strokeWidth, 0.025)} />
+              )}
             </svg>
           </div>
         </button>
