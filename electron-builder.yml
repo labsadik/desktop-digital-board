@@ -2,6 +2,7 @@ appId: com.notereplace.desktop
 productName: Note Replace
 directories:
   output: release
+  buildResources: assets
 files:
   - dist/**
   - dist-electron/**
@@ -10,7 +11,7 @@ extraResources:
     to: assets/logo.png
 win:
   target: nsis
-  icon: assets/icon.ico
+  icon: assets/logo.png
 mac:
   target: dmg
   icon: assets/logo.png
