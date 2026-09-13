@@ -9,12 +9,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 let mainWindow: BrowserWindow | null = null
 
 function createWindow() {
+  const logoPath = app.isPackaged ? path.join(process.resourcesPath, 'assets', 'logo.png') : path.join(__dirname, '../../../assets/logo.png')
   mainWindow = new BrowserWindow({
     width: 1440,
     height: 920,
     minWidth: 1100,
     minHeight: 700,
     title: 'Note Replace',
+    icon: logoPath,
     backgroundColor: '#f5f7fb',
     webPreferences: { preload: path.join(__dirname, '../preload/preload.js'), contextIsolation: true, sandbox: false, nodeIntegration: false, spellcheck: true },
   })
