@@ -12,7 +12,7 @@
     "test:watch": "vitest",
     "preview": "vite preview --host 127.0.0.1",
     "clean:release": "node scripts/clean-release.mjs",
-    "dist": "node scripts/dist.mjs",
+    "dist": "npm run clean:release && electron-builder --config electron-builder.yml --publish never",
     "dist:build": "npm run build && npm run dist"
   },
   "dependencies": {
