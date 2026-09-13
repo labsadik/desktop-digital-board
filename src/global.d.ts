@@ -1,0 +1,3 @@
+import type { Project } from './types/document'
+declare global { interface Window { desktop: { openProject():Promise<Project|null>; saveProject(project:Project):Promise<string|null>; importImage():Promise<string|null>; exportPptx(project:Project):Promise<string|null>; exportPdf(html:string,fileName:string):Promise<string|null>; reveal(target:string):Promise<void> } } }
+export {}

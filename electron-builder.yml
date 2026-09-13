@@ -1,0 +1,11 @@
+appId: com.notereplace.desktop
+productName: Note Replace
+files:
+  - dist/**
+  - dist-electron/**
+win:
+  target: nsis
+mac:
+  target: dmg
+linux:
+  target: AppImage
