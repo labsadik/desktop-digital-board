@@ -1,5 +1,5 @@
 import { Copy, Download, Eraser, FilePlus2, FileUp, Highlighter, ImagePlus, Minus, MousePointer2, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PenLine, Plus, Redo2, Save, Square, Trash2, Type, Undo2, ZoomIn, ZoomOut } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useEditorStore } from '../stores/editor.store'
 
 interface Props {
@@ -28,40 +28,67 @@ export function Toolbar({ saveLabel, onSave, onOpen, onImportPdf, onImportPptx, 
   const redo = useEditorStore((s) => s.redo)
   const zoom = useEditorStore((s) => s.zoom)
   const setZoom = useEditorStore((s) => s.setZoom)
-  const button = (name: string, icon: ReactNode, onClick: () => void, active = false, disabled = false) => <button type="button" title={name} aria-label={name} className={`tool ${active ? 'active' : ''}`} disabled={disabled} onClick={onClick}>{icon}</button>
+  const [openMenu, setOpenMenu] = useState<'pdf' | 'pptx' | null>(null)
+
+  const toolButton = (name: string, icon: ReactNode, onClick: () => void, active = false) => (
+    <button type="button" title={name} aria-label={name} className={`tool ${active ? 'active' : ''}`} onClick={onClick}>{icon}</button>
+  )
+  const menuButton = (label: string, menu: 'pdf' | 'pptx') => (
+    <div className="menu-wrap">
+      <button type="button" className="secondary menu-trigger" onClick={() => setOpenMenu(openMenu === menu ? null : menu)} aria-expanded={openMenu === menu}>
+        <FileUp size={15} /><span>{label}</span><span className="menu-caret">▾</span>
+      </button>
+      {openMenu === menu && <div className="tool-menu" role="menu">
+        <button type="button" onClick={() => { setOpenMenu(null); menu === 'pdf' ? onImportPdf() : onImportPptx() }}>{label} Import</button>
+        <button type="button" onClick={() => { setOpenMenu(null); menu === 'pdf' ? onExportPdf() : onExportPptx() }}>{label} Export</button>
+      </div>}
+    </div>
+  )
 
   return <header className="topbar">
-    <div className="brand"><span className="brand-mark">N</span><span>Note Replace</span></div>
-    <div className="toolbar-group primary-tools">
-      {button('Left sidebar', leftSidebarOpen ? <PanelLeftClose size={17} /> : <PanelLeftOpen size={17} />, onToggleLeftSidebar, leftSidebarOpen)}
-      {button('Right sidebar', rightSidebarOpen ? <PanelRightClose size={17} /> : <PanelRightOpen size={17} />, onToggleRightSidebar, rightSidebarOpen)}
-      {button('Select / move', <MousePointer2 size={17} />, () => setTool('select'), tool === 'select')}
-      {button('Pen', <PenLine size={17} />, () => setTool('pen'), tool === 'pen')}
-      {button('Highlighter', <Highlighter size={17} />, () => setTool('highlighter'), tool === 'highlighter')}
-      {button('Eraser', <Eraser size={17} />, () => setTool('eraser'), tool === 'eraser')}
-      {button('Text', <Type size={17} />, () => setTool('text'), tool === 'text')}
-      {button('Rectangle', <Square size={17} />, () => setTool('shape'), tool === 'shape')}
-      {button('Add image', <ImagePlus size={17} />, onImage)}
-    </div>
-    <div className="toolbar-group center-actions">
-      {button('Undo', <Undo2 size={17} />, undo)}
-      {button('Redo', <Redo2 size={17} />, redo)}
-      {button('Add page', <Plus size={17} />, addPage)}
-      {button('Duplicate page', <Copy size={17} />, duplicatePage)}
-      {button('Delete page', <Trash2 size={17} />, deletePage)}
-      {button('Zoom out', <ZoomOut size={17} />, () => setZoom(zoom - 0.1))}
-      <span className="zoom-value">{Math.round(zoom * 100)}%</span>
-      {button('Zoom in', <ZoomIn size={17} />, () => setZoom(zoom + 0.1))}
-      {button('Reset zoom', <Minus size={17} />, () => setZoom(1))}
-    </div>
-    <div className="toolbar-group end-actions">
-      <button type="button" className="secondary" onClick={onOpen}><FilePlus2 size={16} />Open</button>
-      <button type="button" className="secondary" onClick={onImportPdf}><FileUp size={16} />PDF Import</button>
-      <button type="button" className="secondary" onClick={onImportPptx}><FileUp size={16} />PPTX Import</button>
-      <button type="button" className="secondary" onClick={onSave}><Save size={16} />{saveLabel}</button>
-      <button type="button" className="secondary" onClick={onExportPng}><Download size={16} />PNG</button>
-      <button type="button" className="secondary" onClick={onExportPptx}><Download size={16} />PPTX Export</button>
-      <button type="button" className="primary" onClick={onExportPdf}><Download size={16} />PDF Export</button>
+    <div className="toolbar-inner">
+      <div className="brand"><span className="brand-mark">N</span><span>Note Replace</span></div>
+      <div className="toolbar-section compact">
+        {toolButton('Left sidebar', leftSidebarOpen ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />, onToggleLeftSidebar, leftSidebarOpen)}
+        {toolButton('Right sidebar', rightSidebarOpen ? <PanelRightClose size={16} /> : <PanelRightOpen size={16} />, onToggleRightSidebar, rightSidebarOpen)}
+      </div>
+      <div className="toolbar-section">
+        {toolButton('Undo', <Undo2 size={16} />, undo)}
+        {toolButton('Redo', <Redo2 size={16} />, redo)}
+      </div>
+      <div className="toolbar-section">
+        {toolButton('Blank page', <Plus size={16} />, addPage)}
+        {toolButton('Duplicate page', <Copy size={16} />, duplicatePage)}
+        {toolButton('Delete page', <Trash2 size={16} />, deletePage)}
+      </div>
+      <div className="toolbar-section zoom-group">
+        {toolButton('Zoom out', <ZoomOut size={16} />, () => setZoom(zoom - 0.1))}
+        <span className="zoom-value">{Math.round(zoom * 100)}%</span>
+        {toolButton('Zoom in', <ZoomIn size={16} />, () => setZoom(zoom + 0.1))}
+        {toolButton('Reset zoom', <Minus size={16} />, () => setZoom(1))}
+      </div>
+      <div className="toolbar-section document-actions">
+        <button type="button" className="secondary" onClick={onOpen}><FilePlus2 size={15} />Open</button>
+        <button type="button" className="secondary save-button" onClick={onSave}><Save size={15} />{saveLabel}</button>
+        {menuButton('PDF', 'pdf')}
+        {menuButton('PPTX', 'pptx')}
+        <button type="button" className="secondary" onClick={onImage}><ImagePlus size={15} />Image</button>
+        <button type="button" className="secondary" onClick={onExportPng}><Download size={15} />PNG</button>
+      </div>
     </div>
   </header>
+}
+
+export function FloatingTools() {
+  const tool = useEditorStore((s) => s.tool)
+  const setTool = useEditorStore((s) => s.setTool)
+  const button = (name: string, icon: ReactNode, value: typeof tool) => <button type="button" title={name} aria-label={name} className={`floating-tool ${tool === value ? 'active' : ''}`} onClick={() => setTool(value)}>{icon}</button>
+  return <div className="floating-tools" aria-label="Board tools">
+    {button('Select', <MousePointer2 size={17} />, 'select')}
+    {button('Pen', <PenLine size={17} />, 'pen')}
+    {button('Highlighter', <Highlighter size={17} />, 'highlighter')}
+    {button('Eraser', <Eraser size={17} />, 'eraser')}
+    {button('Text', <Type size={17} />, 'text')}
+    {button('Rectangle', <Square size={17} />, 'shape')}
+  </div>
 }
