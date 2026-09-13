@@ -1,8 +1,59 @@
-import { Copy, Download, Eraser, FilePlus2, Highlighter, ImagePlus, MousePointer2, PenLine, Plus, Save, Square, Trash2, Type, Undo2, Redo2 } from 'lucide-react'
-import { useEditorStore } from '../stores/editor.store'
+import { Copy, Download, Eraser, FilePlus2, FileUp, Highlighter, ImagePlus, Minus, MousePointer2, PenLine, Plus, Redo2, Save, Square, Trash2, Type, Undo2, ZoomIn, ZoomOut } from 'lucide-react'
 import type { ReactNode } from 'react'
-export function Toolbar({onSave,onOpen,onExportPptx,onExportPdf,onImage}:{onSave:()=>void;onOpen:()=>void;onExportPptx:()=>void;onExportPdf:()=>void;onImage:()=>void}){
- const tool=useEditorStore(s=>s.tool),setTool=useEditorStore(s=>s.setTool),addPage=useEditorStore(s=>s.addPage),duplicatePage=useEditorStore(s=>s.duplicatePage),deletePage=useEditorStore(s=>s.deletePage)
- const button=(name:string,icon:ReactNode,onClick:()=>void,active=false)=><button title={name} className={`tool ${active?'active':''}`} onClick={onClick}>{icon}</button>
- return <header className="topbar"><div className="brand">Note Replace</div><div className="toolbar-group">{button('Select',<MousePointer2 size={17}/>,()=>setTool('select'),tool==='select')}{button('Pen',<PenLine size={17}/>,()=>setTool('pen'),tool==='pen')}{button('Highlighter',<Highlighter size={17}/>,()=>setTool('pen'))}{button('Eraser',<Eraser size={17}/>,()=>setTool('eraser'),tool==='eraser')}{button('Text',<Type size={17}/>,()=>setTool('text'),tool==='text')}{button('Rectangle',<Square size={17}/>,()=>setTool('shape'),tool==='shape')}{button('Image',<ImagePlus size={17}/>,onImage)}</div><div className="toolbar-group center-actions">{button('Undo',<Undo2 size={17}/>,()=>{})}{button('Redo',<Redo2 size={17}/>,()=>{})}{button('Add page',<Plus size={17}/>,addPage)}{button('Duplicate page',<Copy size={17}/>,duplicatePage)}{button('Delete page',<Trash2 size={17}/>,deletePage)}</div><div className="toolbar-group end-actions"><button className="secondary" onClick={onOpen}><FilePlus2 size={16}/> Open</button><button className="secondary" onClick={onSave}><Save size={16}/> Save</button><button className="secondary" onClick={onExportPptx}><Download size={16}/> PPTX</button><button className="primary" onClick={onExportPdf}><Download size={16}/> PDF</button></div></header>
+import { useEditorStore } from '../stores/editor.store'
+
+interface Props {
+  onSave: () => void
+  onOpen: () => void
+  onImportPdf: () => void
+  onExportPptx: () => void
+  onExportPdf: () => void
+  onExportPng: () => void
+  onImage: () => void
+}
+
+export function Toolbar({ onSave, onOpen, onImportPdf, onExportPptx, onExportPdf, onExportPng, onImage }: Props) {
+  const tool = useEditorStore((s) => s.tool)
+  const setTool = useEditorStore((s) => s.setTool)
+  const addPage = useEditorStore((s) => s.addPage)
+  const duplicatePage = useEditorStore((s) => s.duplicatePage)
+  const deletePage = useEditorStore((s) => s.deletePage)
+  const undo = useEditorStore((s) => s.undo)
+  const redo = useEditorStore((s) => s.redo)
+  const zoom = useEditorStore((s) => s.zoom)
+  const setZoom = useEditorStore((s) => s.setZoom)
+
+  const button = (name: string, icon: ReactNode, onClick: () => void, active = false, disabled = false) => <button type="button" title={name} aria-label={name} className={`tool ${active ? 'active' : ''}`} disabled={disabled} onClick={onClick}>{icon}</button>
+
+  return <header className="topbar">
+    <div className="brand"><span className="brand-mark">N</span><span>Note Replace</span></div>
+    <div className="toolbar-group primary-tools">
+      {button('Select / move', <MousePointer2 size={17} />, () => setTool('select'), tool === 'select')}
+      {button('Pen', <PenLine size={17} />, () => setTool('pen'), tool === 'pen')}
+      {button('Highlighter', <Highlighter size={17} />, () => setTool('highlighter'), tool === 'highlighter')}
+      {button('Eraser', <Eraser size={17} />, () => setTool('eraser'), tool === 'eraser')}
+      {button('Text', <Type size={17} />, () => setTool('text'), tool === 'text')}
+      {button('Rectangle', <Square size={17} />, () => setTool('shape'), tool === 'shape')}
+      {button('Add image', <ImagePlus size={17} />, onImage)}
+    </div>
+    <div className="toolbar-group center-actions">
+      {button('Undo', <Undo2 size={17} />, undo)}
+      {button('Redo', <Redo2 size={17} />, redo)}
+      {button('Add page', <Plus size={17} />, addPage)}
+      {button('Duplicate page', <Copy size={17} />, duplicatePage)}
+      {button('Delete page', <Trash2 size={17} />, deletePage)}
+      {button('Zoom out', <ZoomOut size={17} />, () => setZoom(zoom - 0.1))}
+      <span className="zoom-value">{Math.round(zoom * 100)}%</span>
+      {button('Zoom in', <ZoomIn size={17} />, () => setZoom(zoom + 0.1))}
+      {button('Reset zoom', <Minus size={17} />, () => setZoom(1))}
+    </div>
+    <div className="toolbar-group end-actions">
+      <button type="button" className="secondary" onClick={onOpen}><FilePlus2 size={16} />Open</button>
+      <button type="button" className="secondary" onClick={onImportPdf}><FileUp size={16} />PDF</button>
+      <button type="button" className="secondary" onClick={onSave}><Save size={16} />Save</button>
+      <button type="button" className="secondary" onClick={onExportPng}><Download size={16} />PNG</button>
+      <button type="button" className="secondary" onClick={onExportPptx}><Download size={16} />PPTX</button>
+      <button type="button" className="primary" onClick={onExportPdf}><Download size={16} />PDF Export</button>
+    </div>
+  </header>
 }
