@@ -1,5 +1,7 @@
-import PptxGenJS from 'pptxgenjs'
+import * as PptxGenModule from 'pptxgenjs'
 import type { Project, DrawingElement } from '../../src/types/document.js'
+
+const PptxGenJS = ((PptxGenModule as unknown as { default?: unknown }).default ?? PptxGenModule) as any
 
 function svgData(element: DrawingElement) {
   const minX = Math.min(...element.points.map((point) => point.x), 0)
@@ -28,7 +30,7 @@ export async function createPptx(project: Project, outputPath: string) {
       if (element.type === 'text') {
         slide.addText(element.text, { x: element.x, y: element.y, w: element.width, h: element.height, fontFace: element.fontFamily, fontSize: Math.max(8, element.fontSize * 72), color: element.fill.replace('#', ''), bold: element.fontWeight >= 700, margin: 0, breakLine: false })
       } else if (element.type === 'shape') {
-        slide.addShape(PptxGenJS.ShapeType.rect, { x: element.x, y: element.y, w: element.width, h: element.height, rectRadius: element.radius ? Math.max(0.02, element.radius) : undefined, fill: { color: element.fill.replace('#', '') }, line: { color: element.stroke.replace('#', ''), width: Math.max(0.5, element.strokeWidth * 72) } })
+        slide.addShape(PptxGenJS.ShapeType.rect, { x: element.x, y: element.y, w: element.width, h: element.height, fill: { color: element.fill.replace('#', '') }, line: { color: element.stroke.replace('#', ''), width: Math.max(0.5, element.strokeWidth * 72) } })
       } else if (element.type === 'image') {
         slide.addImage({ data: element.src, x: element.x, y: element.y, w: element.width, h: element.height, transparency: element.opacity !== undefined ? Math.round((1 - element.opacity) * 100) : 0 })
       } else if (element.type === 'drawing') {
