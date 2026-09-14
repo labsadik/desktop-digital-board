@@ -2,26 +2,34 @@
 
 ![Note Replace product workflow](docs/readme-product-flow.svg)
 
-**Note Replace** is a production-focused Windows/macOS/Linux desktop application for working with PDFs as an editable digital board. It is designed for people who need to import a PDF, mark it up, organize its pages, add images, and export the finished document without using a browser-based editor.
+Note Replace is a desktop PDF annotation and editing application built with Electron, React, and TypeScript.
 
 **Version:** 1.0.0  
-**Developer / Copyright Owner:** Sadik Laskar  
+**Developer:** Sadik Laskar  
 **Copyright:** © 2026 Sadik Laskar. All Rights Reserved.  
-**License:** Proprietary User License — see [`LICENSE`](LICENSE)
+**License:** Proprietary — see [`LICENSE`](LICENSE)
 
-## What is the product?
+## Features
 
-Note Replace turns a PDF page into an editable workspace. A user can bring in an existing PDF or start with a blank canvas, annotate the page, move and resize objects, manage pages, and export the result.
+- Import PDF files page by page.
+- Edit the selected PDF page on the main canvas.
+- Create a blank canvas.
+- Select, move, and resize objects.
+- Draw with Pen or Brush.
+- Use Highlighter and Eraser tools.
+- Add shapes: square, rounded square, circle/ellipse, diamond, horizontal line, and vertical line.
+- Choose pen color and size.
+- Choose shape border colors and transparent fill.
+- Add images to the current page.
+- Add, duplicate, delete, rename, and reorder pages.
+- Undo and redo edits.
+- Zoom from 25% to 200%; the default zoom is 65%.
+- Export the current page as PNG.
+- Save and reopen native `.myed` project files.
+- Save edits from an imported PDF as a PDF.
+- Use keyboard shortcuts for common tools and editing actions.
 
-The application is intended for study notes, classroom material, presentations, document review, PDF markup, handwritten annotations, and other everyday PDF editing workflows.
-
-## Why Note Replace?
-
-The goal is to keep PDF editing focused and fast instead of mixing the workflow with a large general-purpose design suite. The app keeps the page visible as the main workspace while the toolset stays compact and keyboard-friendly.
-
-## Product references / screenshots
-
-These screenshots show the actual Note Replace interface and workflow from the current product design.
+## Product references
 
 ![Note Replace reference 1](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_27_47%20PM.png)
 
@@ -33,40 +41,17 @@ These screenshots show the actual Note Replace interface and workflow from the c
 
 ![Note Replace reference 5](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_28_29%20PM.png)
 
-## Main features
-
-- **PDF import:** Import PDF documents page by page and keep the pages editable inside the workspace.
-- **Editable page canvas:** Work on the selected page as the main editing surface.
-- **Drawing:** Select, Pen, Brush, Highlighter, Eraser, and Shapes.
-- **Pen controls:** One compact popup for Pen/Brush type, color, and size.
-- **Shapes:** Square, rounded rectangle, circle/ellipse, diamond, horizontal line, and vertical line with transparent fill and selectable borders.
-- **Page management:** Add, duplicate, delete, rename, and reorder pages.
-- **Images:** Import images onto the current page.
-- **Undo/redo:** Recover from edits quickly.
-- **Zoom:** 25%–200% working range with a 65% default zoom.
-- **PDF export:** Save an edited imported PDF while preserving the document canvas dimensions.
-- **PNG export:** Export the current page as an image.
-- **Native projects:** Save and reopen native `.myed` project files.
-- **Desktop packaging:** Windows NSIS installer plus macOS and Linux targets are configured in the build system.
-- **Application identity:** The packaged application identifies **Sadik Laskar** as the developer/copyright owner in the application metadata.
-
-## Reference workflow
-
-The product workflow is: **Import → Edit → Organize → Export**.
-
 ## How to use
 
-1. Start Note Replace and choose **Import PDF** or **Blank canvas**.
-2. Use the page sidebar to switch between pages.
-3. Use **Select** to move and resize objects.
-4. Use **Pen** to open the compact pen settings and choose Pen or Brush, a color, and a size.
-5. Use **Highlighter** for transparent highlighting.
-6. Use **Eraser** to remove objects by clicking or dragging across them.
-7. Use **Shape** to choose a shape and border color.
-8. Add images when needed.
-9. Use **Save** to save a native project or export changes from an imported PDF.
+1. Start the application.
+2. Open a PDF or create a blank canvas.
+3. Select a page from the page sidebar.
+4. Choose a tool from the toolbar.
+5. Edit the page, add drawings, shapes, or images.
+6. Use the page controls to add, duplicate, delete, rename, or reorder pages.
+7. Save the project or export the current work.
 
-## Keyboard commands
+## Keyboard shortcuts
 
 | Shortcut | Action |
 |---|---|
@@ -79,72 +64,56 @@ The product workflow is: **Import → Edit → Organize → Export**.
 | `Ctrl+Y` | Redo |
 | `Ctrl+S` | Save |
 | `Delete` / `Backspace` | Delete selected object |
-| `Esc` | Close the About/license dialog |
+| `Esc` | Close the About dialog |
 
-## Build and development
+## Development
 
-Install dependencies:
+### Install
 
 ```bash
 npm install
 ```
 
-Run the development application:
+### Run the application
 
 ```bash
 npm run dev
 ```
 
-Run tests:
+### Run tests
 
 ```bash
 npm test -- --run
 ```
 
-Build the renderer and Electron code:
+### Build
 
 ```bash
 npm run build
 ```
 
-Create the Windows NSIS installer:
+### Run the built application
+
+```bash
+npm start
+```
+
+### Create the Windows installer
 
 ```bash
 npm run dist:win
 ```
 
-The Windows installer is generated under `release/`.
+The Windows installer is written to the `release/` directory.
 
-## What each command does
+## License and ownership
 
-- `npm install` — installs the dependencies declared by the project.
-- `npm run dev` — starts the Vite development server and launches the Electron application.
-- `npm test -- --run` — runs the automated test suite once.
-- `npm run build` — type-checks the project, creates the production renderer build, and compiles the Electron process.
-- `npm start` — builds the application and then launches the compiled Electron app locally.
-- `npm run dist:win` — builds the application and packages it as a Windows NSIS installer.
+Note Replace is proprietary software owned by **Sadik Laskar**.
 
-## Production and security notes
+The repository is not released under an open-source license. Use of an authorized application build is permitted under the terms of [`LICENSE`](LICENSE).
 
-The renderer runs without Node integration and uses isolated Electron preload IPC. PDF imports are processed progressively, page images are optimized before being stored in editor state, and background PDF hydration does not create undo-history entries.
+Without prior written permission from Sadik Laskar, the repository and proprietary parts of the application may not be copied, forked, republished, redistributed, modified, rebranded, resold, or used as the basis of another application. Copyright and attribution notices may not be removed or changed.
 
-The repository is **not an open-source project**. The application may be used according to the proprietary user license, but the repository, source code, UI implementation, assets, and architecture may not be copied, forked, repackaged, redistributed, or used as the basis of another product without written permission from Sadik Laskar.
+Third-party libraries included in the project remain subject to their own licenses.
 
-## Single license and ownership
-
-Copyright © 2026 **Sadik Laskar**. All Rights Reserved.
-
-Note Replace uses **one license only: the `LICENSE` file in the repository**. There is no separate second license agreement or alternative repository license.
-
-Authorized users may install and use an unmodified build of Note Replace and may create, edit, save, and export their own documents. This user permission does **not** transfer ownership of the application or repository.
-
-Without prior written permission from **Sadik Laskar**, you may not copy, fork, mirror, publish, redistribute, repackage, rebrand, sell, sublicense, modify, create a competing derivative application from, or take substantial source code, UI implementation, assets, or architecture from this repository or application. You may not claim authorship or copyright ownership of Note Replace.
-
-Third-party libraries included by the application remain under their own respective licenses. Those third-party licenses do not transfer ownership of the proprietary Note Replace source code or repository.
-
-Read the complete terms in [`LICENSE`](LICENSE).
-
-For written permission or commercial licensing outside the granted user rights, contact:
-
-**Sadik Laskar**  
-`emailme.sadik@gmail.com`
+**Copyright © 2026 Sadik Laskar. All Rights Reserved.**
