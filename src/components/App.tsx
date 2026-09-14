@@ -51,7 +51,7 @@ export function App() {
   }, [])
 
   const save = useCallback(() => {
-    void run(project.sourceFormat === 'pdf' ? 'Preparing PDF…' : 'Preparing project…', async () => {
+    void run('Saving…', async () => {
       if (project.sourceFormat === 'pdf') await waitForPdfImports()
       const latestProject = useEditorStore.getState().project
       return latestProject.sourceFormat === 'pdf' ? window.desktop.exportPdf(projectToPdfPages(latestProject), latestProject.name) : window.desktop.saveProject(latestProject)
@@ -67,7 +67,7 @@ export function App() {
   }, [loadProject, run])
 
   const handlePdfPageReady = useCallback((info: PdfImportProgress) => {
-    hydrateElement(info.pageId, info.elementId, { src: info.src, previewSrc: info.src })
+    hydrateElement(info.pageId, info.elementId, { src: info.src })
     setPdfProgress({ done: info.pageNumber, total: info.totalPages })
     if (info.pageNumber === info.totalPages) setTimeout(() => setPdfProgress(null), 250)
   }, [hydrateElement])
@@ -94,14 +94,6 @@ export function App() {
     })
   }, [run])
 
-  const exportPdf = useCallback(() => {
-    void run('Preparing PDF export…', async () => {
-      if (project.sourceFormat === 'pdf') await waitForPdfImports()
-      const latestProject = useEditorStore.getState().project
-      return window.desktop.exportPdf(projectToPdfPages(latestProject), latestProject.name)
-    })
-  }, [project.sourceFormat, run])
-
   const exportPng = useCallback(() => {
     void run('Preparing PNG export…', async () => {
       if (project.sourceFormat === 'pdf') await waitForPdfImports()
@@ -116,7 +108,7 @@ export function App() {
       const target = event.target as HTMLElement | null
       const typing = target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.isContentEditable
       if (!typing && !event.ctrlKey && !event.metaKey && !event.altKey) {
-        const shortcuts: Record<string, Parameters<typeof setTool>[0]> = { v: 'select', p: 'pen', h: 'highlighter', r: 'shape', e: 'eraser' }
+        const shortcuts: Record<string, Parameters<typeof setTool>[0]> = { v: 'select', p: 'pen', h: 'highlighter', e: 'eraser', r: 'shape' }
         const nextTool = shortcuts[event.key.toLowerCase()]
         if (nextTool) { event.preventDefault(); setTool(nextTool); return }
       }
@@ -130,11 +122,10 @@ export function App() {
     return () => window.removeEventListener('keydown', handler)
   }, [currentPageId, removeElement, redo, save, selectedElementId, setTool, undo])
 
-  const saveLabel = project.sourceFormat === 'pdf' ? 'Save PDF' : 'Save Project'
   const chooseBlank = () => setShowStart(false)
 
   return <div className="app-shell">
-    <Toolbar saveLabel={saveLabel} onSave={save} onOpen={open} onImportPdf={() => { void importPdf() }} onExportPdf={exportPdf} onExportPng={exportPng} onImage={() => { void importImage() }} leftSidebarOpen={leftSidebarOpen} rightSidebarOpen={rightSidebarOpen} onToggleLeftSidebar={() => setLeftSidebarOpen((value) => !value)} onToggleRightSidebar={() => setRightSidebarOpen((value) => !value)} />
+    <Toolbar onSave={save} onOpen={open} onImportPdf={() => { void importPdf() }} onExportPng={exportPng} onImage={() => { void importImage() }} leftSidebarOpen={leftSidebarOpen} rightSidebarOpen={rightSidebarOpen} onToggleLeftSidebar={() => setLeftSidebarOpen((value) => !value)} onToggleRightSidebar={() => setRightSidebarOpen((value) => !value)} />
     <div className="editor-layout">
       {leftSidebarOpen && <PageSidebar />}
       <div className="canvas-column board-column">
