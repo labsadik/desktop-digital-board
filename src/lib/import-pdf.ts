@@ -18,16 +18,16 @@ export interface PdfImportProgress {
 function decodeDataUrl(dataUrl: string): Uint8Array {
   const comma = dataUrl.indexOf(',')
   if (comma < 0) throw new Error('Invalid PDF data.')
-  const base64 = dataUrl.slice(comma + 1)
-  const binary = atob(base64)
+  const binary = atob(dataUrl.slice(comma + 1))
   return Uint8Array.from(binary, (character) => character.charCodeAt(0))
 }
 
 function idleTick() {
   return new Promise<void>((resolve) => {
     const callback = () => resolve()
-    if ('requestIdleCallback' in window) window.requestIdleCallback(callback, { timeout: 80 })
-    else window.setTimeout(callback, 0)
+    const requestIdle = window.requestIdleCallback
+    if (typeof requestIdle === 'function') requestIdle(callback, { timeout: 80 })
+    else globalThis.setTimeout(callback, 0)
   })
 }
 
@@ -62,7 +62,7 @@ export async function waitForPdfImports() {
 
 export async function importPdfProject(dataUrl: string, onPageReady?: (progress: PdfImportProgress) => void): Promise<Project> {
   const bytes = decodeDataUrl(dataUrl)
-  const pdf = await pdfjsLib.getDocument({ data: bytes, useWorkerFetch: true, isEvalSupported: true }).promise
+  const pdf = await pdfjsLib.getDocument({ data: bytes, useWorkerFetch: true }).promise
   const pages: Page[] = []
   let projectWidth = 13.333
   let projectHeight = 7.5
@@ -76,17 +76,13 @@ export async function importPdfProject(dataUrl: string, onPageReady?: (progress:
     if (index === 1) { projectWidth = width; projectHeight = height }
     const pageId = uid('page')
     const elementId = uid('image')
-    pages.push({
-      id: pageId,
-      name: `PDF Page ${index}`,
-      width,
-      height,
-      background: '#ffffff',
-      elements: [{ id: elementId, type: 'image', x: 0, y: 0, width, height, rotation: 0, src: placeholder }],
-    })
+    const element = { id: elementId, type: 'image' as const, x: 0, y: 0, width, height, rotation: 0, src: placeholder }
+    pages.push({ id: pageId, name: `PDF Page ${index}`, width, height, background: '#ffffff', elements: [element] })
+
     if (index === 1) {
       const src = await renderPage(pdfPage)
-      pages[0].elements[0] = { id: elementId, type: 'image', x: 0, y: 0, width, height, rotation: 0, src, previewSrc: src }
+      pages[0].elements[0] = { ...element, src }
+      onPageReady?.({ pageId, elementId, pageNumber: 1, totalPages: pdf.numPages, src })
     } else {
       pdfPage.cleanup()
     }
@@ -101,8 +97,7 @@ export async function importPdfProject(dataUrl: string, onPageReady?: (progress:
       const src = await renderPage(pdfPage)
       const page = pages[index - 1]
       const element = page.elements[0]
-      element.src = src
-      element.previewSrc = src
+      if (element.type === 'image') element.src = src
       onPageReady?.({ pageId: page.id, elementId: element.id, pageNumber: index, totalPages: pdf.numPages, src })
       await idleTick()
     }
