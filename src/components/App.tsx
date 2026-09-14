@@ -1,9 +1,10 @@
 import { FilePlus2, FileText, LoaderCircle } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FloatingTools, Toolbar } from './Toolbar'
 import { PageSidebar } from './PageSidebar'
 import { EditorCanvas } from './EditorCanvas'
 import { useEditorStore } from '../stores/editor.store'
+import { importPdfProject, waitForPdfImports, type PdfImportProgress } from '../lib/import-pdf'
 import { pageToSvg, projectToPdfPages } from '../lib/export-html'
 import logoUrl from '../../assets/logo.png'
 
@@ -11,6 +12,7 @@ export function App() {
   const project = useEditorStore((s) => s.project)
   const currentPageId = useEditorStore((s) => s.currentPageId)
   const loadProject = useEditorStore((s) => s.loadProject)
+  const hydrateElement = useEditorStore((s) => s.hydrateElement)
   const setProjectName = useEditorStore((s) => s.setProjectName)
   const renamePage = useEditorStore((s) => s.renamePage)
   const undo = useEditorStore((s) => s.undo)
@@ -21,17 +23,18 @@ export function App() {
   const [busy, setBusy] = useState(false)
   const [progress, setProgress] = useState(0)
   const [message, setMessage] = useState('Ready')
+  const [pdfProgress, setPdfProgress] = useState<{ done: number; total: number } | null>(null)
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true)
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true)
   const [showStart, setShowStart] = useState(true)
   const page = useMemo(() => project.pages.find((item) => item.id === currentPageId) ?? project.pages[0], [project.pages, currentPageId])
   const pageIndex = Math.max(0, project.pages.findIndex((item) => item.id === currentPageId))
 
-  const run = async (label: string, task: () => Promise<string | null | void>) => {
+  const run = useCallback(async (label: string, task: () => Promise<string | null | void>) => {
     setBusy(true)
     setProgress(8)
     setMessage(label)
-    const interval = window.setInterval(() => setProgress((value) => Math.min(92, value + Math.max(1, (92 - value) * 0.08))), 120)
+    const interval = window.setInterval(() => setProgress((value) => Math.min(92, value + Math.max(1, (92 - value) * 0.1))), 120)
     try {
       const result = await task()
       setProgress(100)
@@ -43,16 +46,66 @@ export function App() {
       return null
     } finally {
       window.clearInterval(interval)
-      window.setTimeout(() => { setBusy(false); setProgress(0) }, 260)
+      window.setTimeout(() => { setBusy(false); setProgress(0) }, 220)
     }
-  }
+  }, [])
 
-  const save = () => { void run(project.sourceFormat === 'pdf' ? 'Preparing PDF…' : 'Preparing project…', async () => project.sourceFormat === 'pdf' ? window.desktop.exportPdf(projectToPdfPages(project), project.name) : window.desktop.saveProject(project)) }
-  const open = () => { void run('Opening project…', async () => { const loaded = await window.desktop.openProject(); if (loaded) { loadProject(loaded); setShowStart(false) } return null }) }
-  const importPdf = async () => { const dataUrl = await window.desktop.importPdf(); if (!dataUrl) return; await run('Importing PDF…', async () => { const { importPdfProject } = await import('../lib/import-pdf'); loadProject(await importPdfProject(dataUrl)); setShowStart(false); return null }) }
-  const importImage = async () => { const src = await window.desktop.importImage(); if (!src) return; await run('Importing image…', async () => { useEditorStore.getState().addElement({ id: crypto.randomUUID(), type: 'image', x: 1, y: 1, width: 4, height: 2.5, rotation: 0, src }); return null }) }
-  const exportPdf = () => { void run('Preparing PDF export…', () => window.desktop.exportPdf(projectToPdfPages(project), project.name)) }
-  const exportPng = () => { void run('Preparing PNG export…', async () => page ? window.desktop.exportPng(pageToSvg(page), `${project.name}-${page.name}`) : null) }
+  const save = useCallback(() => {
+    void run(project.sourceFormat === 'pdf' ? 'Preparing PDF…' : 'Preparing project…', async () => {
+      if (project.sourceFormat === 'pdf') await waitForPdfImports()
+      return project.sourceFormat === 'pdf' ? window.desktop.exportPdf(projectToPdfPages(project), project.name) : window.desktop.saveProject(project)
+    })
+  }, [project, run])
+
+  const open = useCallback(() => {
+    void run('Opening project…', async () => {
+      const loaded = await window.desktop.openProject()
+      if (loaded) { loadProject(loaded); setShowStart(false) }
+      return null
+    })
+  }, [loadProject, run])
+
+  const handlePdfPageReady = useCallback((info: PdfImportProgress) => {
+    hydrateElement(info.pageId, info.elementId, { src: info.src, previewSrc: info.src })
+    setPdfProgress({ done: info.pageNumber, total: info.totalPages })
+    if (info.pageNumber === info.totalPages) setTimeout(() => setPdfProgress(null), 250)
+  }, [hydrateElement])
+
+  const importPdf = useCallback(async () => {
+    const dataUrl = await window.desktop.importPdf()
+    if (!dataUrl) return
+    await run('Importing PDF…', async () => {
+      const imported = await importPdfProject(dataUrl, handlePdfPageReady)
+      loadProject(imported)
+      setPdfProgress({ done: 1, total: imported.pages.length })
+      setShowStart(false)
+      return null
+    })
+  }, [handlePdfPageReady, loadProject, run])
+
+  const importImage = useCallback(async () => {
+    const src = await window.desktop.importImage()
+    if (!src) return
+    await run('Importing image…', async () => {
+      useEditorStore.getState().addElement({ id: crypto.randomUUID(), type: 'image', x: 1, y: 1, width: 4, height: 2.5, rotation: 0, src })
+      return null
+    })
+  }, [run])
+
+  const exportPdf = useCallback(() => {
+    void run('Preparing PDF export…', async () => {
+      if (project.sourceFormat === 'pdf') await waitForPdfImports()
+      return window.desktop.exportPdf(projectToPdfPages(project), project.name)
+    })
+  }, [project, run])
+
+  const exportPng = useCallback(() => {
+    void run('Preparing PNG export…', async () => {
+      if (project.sourceFormat === 'pdf') await waitForPdfImports()
+      const current = useEditorStore.getState().project.pages.find((item) => item.id === currentPageId) ?? useEditorStore.getState().project.pages[0]
+      return current ? window.desktop.exportPng(pageToSvg(current), `${project.name}-${current.name}`) : null
+    })
+  }, [currentPageId, project.name, project.sourceFormat, run])
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -91,11 +144,10 @@ export function App() {
         <div className="panel-card"><strong>Canvas</strong><span>{project.width.toFixed(2)} × {project.height.toFixed(2)} in</span><span>{project.pages.length} pages</span><span>{page?.elements.length ?? 0} elements</span></div>
         <div className="panel-card"><strong>Current page</strong><span>Only the selected page is rendered on the canvas.</span><span>Choose a thumbnail to switch pages.</span></div>
         <div className="panel-card"><strong>Source</strong><span>{project.sourceFormat === 'pdf' ? 'Imported PDF' : 'Native Note Replace project'}</span></div>
-        <div className="panel-card"><strong>Saving</strong><span>PDF export preserves each page's canvas dimensions.</span><span>Ctrl/Cmd+S saves the current document.</span></div>
       </aside>}
     </div>
-    <div className="app-status"><span>{busy ? '● Working' : '● Ready'} — {message}</span><span>Page {pageIndex + 1}/{project.pages.length} • {page?.elements.length ?? 0} elements</span></div>
-    {showStart && <div className="start-overlay"><div className="start-card"><div className="start-brand"><img src={logoUrl} alt="Note Replace" /><div><strong>Note Replace</strong><span>PDF editor</span></div></div><div className="start-title"><h1>What are you creating?</h1><p>Import a PDF or start with a clean digital-board page.</p></div><div className="start-options"><button type="button" className="start-option" onClick={() => { void importPdf() }}><span className="start-icon pdf"><FileText size={28} /></span><span><strong>Import PDF</strong><small>Import every PDF page into the vertical page strip.</small></span><span className="start-arrow">→</span></button><button type="button" className="start-option" onClick={chooseBlank}><span className="start-icon blank"><FilePlus2 size={28} /></span><span><strong>Blank canvas</strong><small>Start with one page and add more with the + control.</small></span><span className="start-arrow">→</span></button></div><div className="start-footer">The selected page is the only page rendered in the main canvas.</div></div></div>}
-    {busy && <div className="progress-overlay"><div className="progress-card"><div className="progress-spinner"><LoaderCircle size={25} /></div><div className="progress-copy"><strong>{message}</strong><span>Working on the selected document…</span></div><b>{progress}%</b><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div></div>}
+    <div className="app-status"><span>{busy ? '● Working' : '● Ready'} — {message}</span><span>{pdfProgress ? `PDF pages ${pdfProgress.done}/${pdfProgress.total}` : `Page ${pageIndex + 1}/${project.pages.length} • ${page?.elements.length ?? 0} elements`}</span></div>
+    {showStart && <div className="start-overlay"><div className="start-card"><div className="start-brand"><img src={logoUrl} alt="Note Replace" /><div><strong>Note Replace</strong><span>PDF editor</span></div></div><div className="start-title"><h1>What are you creating?</h1><p>Import a PDF or start with a clean digital-board page.</p></div><div className="start-options"><button type="button" className="start-option" onClick={() => { void importPdf() }}><span className="start-icon pdf"><FileText size={28} /></span><span><strong>Import PDF</strong><small>Open the first page immediately; remaining pages load in the background.</small></span><span className="start-arrow">→</span></button><button type="button" className="start-option" onClick={chooseBlank}><span className="start-icon blank"><FilePlus2 size={28} /></span><span><strong>Blank canvas</strong><small>Start with one page and add more with the + control.</small></span><span className="start-arrow">→</span></button></div><div className="start-footer">The selected page is the only page rendered in the main canvas.</div></div></div>}
+    {busy && <div className="progress-overlay"><div className="progress-card"><div className="progress-spinner"><LoaderCircle size={25} /></div><div className="progress-copy"><strong>{message}</strong><span>Preparing the document…</span></div><b>{progress}%</b><div className="progress-track"><span style={{ width: `${progress}%` }} /></div></div></div>}
   </div>
 }
