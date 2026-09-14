@@ -5,7 +5,7 @@
 Note Replace is a desktop PDF annotation and editing application built with Electron, React, and TypeScript.
 
 **Version:** 1.0.0  
-**Developer:** Sadik Laskar  
+**Developer:** [@labsadik](https://github.com/labsadik)  
 **Copyright:** © 2026 Sadik Laskar. All Rights Reserved.  
 **License:** Proprietary — see [`LICENSE`](LICENSE)
 
@@ -37,9 +37,9 @@ Note Replace is a desktop PDF annotation and editing application built with Elec
 
 ![Note Replace reference 3](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_28_09%20PM.png)
 
-![Note Replace reference 4](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_28_25%20PM.png)
+![Note Replace reference 4](https://ik.imagekit.io/xvqovovhmcyr/Note%20Replace%209_14_2026%2012_28_25%20PM.png)
 
-![Note Replace reference 5](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_28_29%20PM.png)
+![Note Replace reference 5](https://ik.imagekit.io/xvqovovhmcyr/Note%20Replace%209_14_2026%2012_28_29%20PM.png)
 
 ## How to use
 
@@ -108,12 +108,13 @@ The Windows installer is written to the `release/` directory.
 
 ## License and ownership
 
-Note Replace is proprietary software owned by **Sadik Laskar**.
+Note Replace is proprietary software. Copyright ownership remains with **Sadik Laskar**.
 
 The repository is not released under an open-source license. Use of an authorized application build is permitted under the terms of [`LICENSE`](LICENSE).
 
-Without prior written permission from Sadik Laskar, the repository and proprietary parts of the application may not be copied, forked, republished, redistributed, modified, rebranded, resold, or used as the basis of another application. Copyright and attribution notices may not be removed or changed.
+Without prior written permission from the copyright owner, the repository and proprietary parts of the application may not be copied, forked, republished, redistributed, modified, rebranded, resold, or used as the basis of another application. Copyright and attribution notices may not be removed or changed.
 
 Third-party libraries included in the project remain subject to their own licenses.
 
+**GitHub developer:** [@labsadik](https://github.com/labsadik)  
 **Copyright © 2026 Sadik Laskar. All Rights Reserved.**
