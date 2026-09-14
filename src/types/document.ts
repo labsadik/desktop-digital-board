@@ -1,5 +1,5 @@
 export type ElementType = 'text' | 'shape' | 'image' | 'drawing'
-export type SourceFormat = 'native' | 'pdf' | 'pptx'
+export type SourceFormat = 'native' | 'pdf'
 
 export interface BaseElement { id: string; type: ElementType; x: number; y: number; width: number; height: number; rotation: number }
 export interface TextElement extends BaseElement { type: 'text'; text: string; fontFamily: string; fontSize: number; fontWeight: number; fill: string }
