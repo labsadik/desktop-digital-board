@@ -159,7 +159,7 @@ export function EditorCanvas() {
 
   return <main className="workspace">
     <div className="canvas-scroll">
-      <div className="board-pages" style={{ '--board-zoom': zoom } as React.CSSProperties}>
+      <div className="board-pages">
         {project.pages.map((boardPage) => {
           const active = boardPage.id === page.id
           if (!active) return <button key={boardPage.id} type="button" className="board-page board-page-preview" onClick={() => selectPage(boardPage.id)} aria-label={`Open ${boardPage.name}`}><div className="board-page-label"><span>{project.pages.indexOf(boardPage) + 1}</span><strong>{boardPage.name}</strong></div><div className="board-preview" dangerouslySetInnerHTML={{ __html: pageToSvg(boardPage) }} /></button>
