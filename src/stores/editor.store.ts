@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Element, Project, Page } from '../types/document'
+import type { Element, Project, Page, DrawingStyle, ShapeKind } from '../types/document'
 import { createPage, createProject } from '../core/document'
 import { uid } from '../utils/id'
 
@@ -11,11 +11,19 @@ interface EditorState {
   selectedElementId: string | null
   tool: Tool
   penColor: string
+  penSize: number
+  penStyle: DrawingStyle
+  shapeKind: ShapeKind
+  shapeColor: string
   zoom: number
   past: Project[]
   future: Project[]
   setTool: (tool: Tool) => void
   setPenColor: (color: string) => void
+  setPenSize: (size: number) => void
+  setPenStyle: (style: DrawingStyle) => void
+  setShapeKind: (kind: ShapeKind) => void
+  setShapeColor: (color: string) => void
   selectPage: (id: string) => void
   selectElement: (id: string | null) => void
   addPage: () => void
@@ -34,16 +42,10 @@ interface EditorState {
 }
 
 const initial = createProject()
-const DEFAULT_ZOOM = 0.65
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value))
 
 export const useEditorStore = create<EditorState>((set) => {
-  const commit = (state: EditorState, project: Project, patch: Partial<EditorState> = {}): Partial<EditorState> => ({
-    ...patch,
-    project,
-    past: [...state.past.slice(-39), clone(state.project)],
-    future: [],
-  })
+  const commit = (state: EditorState, project: Project, patch: Partial<EditorState> = {}): Partial<EditorState> => ({ ...patch, project, past: [...state.past.slice(-39), clone(state.project)], future: [] })
 
   return {
     project: initial,
@@ -51,11 +53,19 @@ export const useEditorStore = create<EditorState>((set) => {
     selectedElementId: null,
     tool: 'select',
     penColor: '#111827',
-    zoom: DEFAULT_ZOOM,
+    penSize: 0.10,
+    penStyle: 'pen',
+    shapeKind: 'rect',
+    shapeColor: '#2563eb',
+    zoom: 0.65,
     past: [],
     future: [],
     setTool: (tool) => set({ tool, selectedElementId: null }),
     setPenColor: (penColor) => set({ penColor }),
+    setPenSize: (penSize) => set({ penSize: Math.max(0.03, Math.min(0.35, penSize)) }),
+    setPenStyle: (penStyle) => set({ penStyle }),
+    setShapeKind: (shapeKind) => set({ shapeKind }),
+    setShapeColor: (shapeColor) => set({ shapeColor }),
     selectPage: (id) => set((state) => state.project.pages.some((page) => page.id === id) ? { currentPageId: id, selectedElementId: null } : state),
     selectElement: (id) => set({ selectedElementId: id }),
     addPage: () => set((state) => {
@@ -101,7 +111,7 @@ export const useEditorStore = create<EditorState>((set) => {
       if (!page || !page.elements.some((item) => item.id === elementId)) return state
       return commit(state, { ...state.project, pages: state.project.pages.map((p) => p.id === pageId ? { ...p, elements: p.elements.filter((item) => item.id !== elementId) } : p) }, { selectedElementId: null })
     }),
-    loadProject: (project) => set({ project, currentPageId: project.pages[0]?.id ?? '', selectedElementId: null, past: [], future: [], tool: 'select', zoom: DEFAULT_ZOOM }),
+    loadProject: (project) => set({ project, currentPageId: project.pages[0]?.id ?? '', selectedElementId: null, past: [], future: [], tool: 'select', zoom: 0.65 }),
     setProjectName: (name) => set((state) => ({ project: { ...state.project, name } })),
     setZoom: (zoom) => set({ zoom: Math.max(0.25, Math.min(2, zoom)) }),
     undo: () => set((state) => {
