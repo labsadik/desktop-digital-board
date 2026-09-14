@@ -46,38 +46,63 @@ const styles: Array<{ value: DrawingStyle; label: string }> = [{ value: 'pen', l
 const shapes: Array<{ value: ShapeKind; label: string }> = [{ value: 'rect', label: 'Square' }, { value: 'roundRect', label: 'Rounded' }, { value: 'ellipse', label: 'Circle' }, { value: 'diamond', label: 'Diamond' }, { value: 'lineH', label: 'Horizontal' }, { value: 'lineV', label: 'Vertical' }]
 const shapeColors = [{ value: '#2563eb', label: 'Blue' }, { value: '#dc2626', label: 'Red' }, { value: '#16a34a', label: 'Green' }, { value: '#111827', label: 'Black' }, { value: '#a855f7', label: 'Purple' }]
 
+type Panel = 'pen' | 'shape' | null
+
 export function FloatingTools() {
-  const tool = useEditorStore((s) => s.tool), penColor = useEditorStore((s) => s.penColor), penSize = useEditorStore((s) => s.penSize), penStyle = useEditorStore((s) => s.penStyle), shapeKind = useEditorStore((s) => s.shapeKind), shapeColor = useEditorStore((s) => s.shapeColor)
-  const setTool = useEditorStore((s) => s.setTool), setPenColor = useEditorStore((s) => s.setPenColor), setPenSize = useEditorStore((s) => s.setPenSize), setPenStyle = useEditorStore((s) => s.setPenStyle), setShapeKind = useEditorStore((s) => s.setShapeKind), setShapeColor = useEditorStore((s) => s.setShapeColor)
-  const [penOpen, setPenOpen] = useState(false)
-  const popoverRef = useRef<HTMLDivElement | null>(null)
+  const tool = useEditorStore((s) => s.tool)
+  const penColor = useEditorStore((s) => s.penColor)
+  const penSize = useEditorStore((s) => s.penSize)
+  const penStyle = useEditorStore((s) => s.penStyle)
+  const shapeKind = useEditorStore((s) => s.shapeKind)
+  const shapeColor = useEditorStore((s) => s.shapeColor)
+  const setTool = useEditorStore((s) => s.setTool)
+  const setPenColor = useEditorStore((s) => s.setPenColor)
+  const setPenSize = useEditorStore((s) => s.setPenSize)
+  const setPenStyle = useEditorStore((s) => s.setPenStyle)
+  const setShapeKind = useEditorStore((s) => s.setShapeKind)
+  const setShapeColor = useEditorStore((s) => s.setShapeColor)
+  const [openPanel, setOpenPanel] = useState<Panel>(null)
+  const panelRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
-    const close = (event: PointerEvent) => { if (penOpen && !popoverRef.current?.contains(event.target as Node)) setPenOpen(false) }
+    const close = (event: PointerEvent) => {
+      if (openPanel && !panelRef.current?.contains(event.target as Node)) setOpenPanel(null)
+    }
     document.addEventListener('pointerdown', close)
     return () => document.removeEventListener('pointerdown', close)
-  }, [penOpen])
+  }, [openPanel])
 
-  const chooseTool = (value: typeof tool) => { setTool(value); setPenOpen(false) }
+  const chooseTool = (value: typeof tool) => {
+    setTool(value)
+    setOpenPanel(null)
+  }
+
   const button = (name: string, icon: ReactNode, value: typeof tool) => <button type="button" title={name} aria-label={name} className={`floating-tool ${tool === value ? 'active' : ''}`} onClick={() => chooseTool(value)}>{icon}</button>
+  const togglePanel = (panel: Panel, value: typeof tool) => {
+    setTool(value)
+    setOpenPanel((current) => current === panel ? null : panel)
+  }
 
   return <div className="floating-tools" aria-label="Board tools">
     {button('Select', <MousePointer2 size={17} />, 'select')}
     <div className="floating-tool-wrap">
-      <button type="button" title="Pen settings" aria-label="Pen settings" className={`floating-tool ${tool === 'pen' ? 'active' : ''}`} aria-expanded={penOpen} onClick={() => { setTool('pen'); setPenOpen((value) => !value) }}><PenLine size={17} /></button>
-      {penOpen && <div ref={popoverRef} className="tool-popover pen-popover compact-pen-popover" aria-label="Pen settings">
-        <div className="popover-head"><div><strong>Pen</strong><small>Style, size and color</small></div><button type="button" className="popover-close" title="Close pen settings" aria-label="Close pen settings" onClick={() => setPenOpen(false)}><X size={15} /></button></div>
-        <div className="pen-settings-row"><span className="settings-label">Type</span><div className="style-choice-row">{styles.map((style) => <button key={style.value} type="button" className={`style-choice ${penStyle === style.value ? 'selected' : ''}`} onClick={() => { setPenStyle(style.value); setPenOpen(false) }}><span className={`style-preview ${style.value}`} style={{ background: penColor }} />{style.label}</button>)}</div></div>
-        <div className="pen-settings-row"><span className="settings-label">Color</span><div className="inline-colors">{penColors.map((color) => <button key={color.value} type="button" className={`swatch ${penColor === color.value ? 'selected' : ''}`} title={color.label} aria-label={color.label} style={{ background: color.value }} onClick={() => { setPenColor(color.value); setPenOpen(false) }} />)}</div></div>
-        <label className="inline-slider pen-settings-row" title="Pen size"><span className="settings-label">Size <b>{Math.round(penSize * 100)}%</b></span><input aria-label="Pen size" type="range" min="3" max="35" step="1" value={Math.round(penSize * 100)} onChange={(event) => setPenSize(Number(event.target.value) / 100)} /></label>
+      <button type="button" title="Pen settings" aria-label="Pen settings" className={`floating-tool ${tool === 'pen' ? 'active' : ''}`} aria-expanded={openPanel === 'pen'} onClick={() => togglePanel('pen', 'pen')}><PenLine size={17} /></button>
+      {openPanel === 'pen' && <div ref={panelRef} className="tool-popover compact-tool-popover" aria-label="Pen settings">
+        <div className="popover-head"><div><strong>Pen</strong><small>Style, size and color</small></div><button type="button" className="popover-close" title="Close" aria-label="Close" onClick={() => setOpenPanel(null)}><X size={15} /></button></div>
+        <div className="settings-row"><span className="settings-label">Type</span><div className="choice-row">{styles.map((style) => <button key={style.value} type="button" className={`choice-button ${penStyle === style.value ? 'selected' : ''}`} onClick={() => { setPenStyle(style.value); setOpenPanel(null) }}><span className={`style-preview ${style.value}`} style={{ background: penColor }} /></button>)}</div></div>
+        <div className="settings-row"><span className="settings-label">Color</span><div className="inline-colors">{penColors.map((color) => <button key={color.value} type="button" className={`swatch ${penColor === color.value ? 'selected' : ''}`} title={color.label} aria-label={color.label} style={{ background: color.value }} onClick={() => { setPenColor(color.value); setOpenPanel(null) }} />)}</div></div>
+        <label className="settings-row slider-row" title="Pen size"><span className="settings-label">Size <b>{Math.round(penSize * 100)}%</b></span><input aria-label="Pen size" type="range" min="3" max="35" step="1" value={Math.round(penSize * 100)} onChange={(event) => setPenSize(Number(event.target.value) / 100)} /></label>
       </div>}
     </div>
     {button('Highlighter', <Highlighter size={17} />, 'highlighter')}
     {button('Eraser', <Eraser size={17} />, 'eraser')}
-    {button('Shape', <Square size={17} />, 'shape')}
-    {tool === 'shape' && <div className="inline-tool-panel shape-inline-panel" aria-label="Shape settings">
-      <div className="inline-shapes">{shapes.map((shape) => <button key={shape.value} type="button" className={`mini-shape ${shapeKind === shape.value ? 'selected' : ''}`} title={shape.label} aria-label={shape.label} onClick={() => setShapeKind(shape.value)}><span className={`shape-icon ${shape.value}`} /></button>)}</div>
-      <div className="inline-colors">{shapeColors.map((color) => <button key={color.value} type="button" className={`swatch ${shapeColor === color.value ? 'selected' : ''}`} title={`${color.label} border`} aria-label={`${color.label} border`} style={{ background: color.value }} onClick={() => setShapeColor(color.value)} />)}</div>
-    </div>}
+    <div className="floating-tool-wrap">
+      <button type="button" title="Shape settings" aria-label="Shape settings" className={`floating-tool ${tool === 'shape' ? 'active' : ''}`} aria-expanded={openPanel === 'shape'} onClick={() => togglePanel('shape', 'shape')}><Square size={17} /></button>
+      {openPanel === 'shape' && <div ref={panelRef} className="tool-popover compact-tool-popover shape-tool-popover" aria-label="Shape settings">
+        <div className="popover-head"><div><strong>Shape</strong><small>Choose shape and border color</small></div><button type="button" className="popover-close" title="Close" aria-label="Close" onClick={() => setOpenPanel(null)}><X size={15} /></button></div>
+        <div className="settings-row"><span className="settings-label">Shape</span><div className="inline-shapes">{shapes.map((shape) => <button key={shape.value} type="button" className={`mini-shape ${shapeKind === shape.value ? 'selected' : ''}`} title={shape.label} aria-label={shape.label} onClick={() => { setShapeKind(shape.value); setOpenPanel(null) }}><span className={`shape-icon ${shape.value}`} /></button>)}</div></div>
+        <div className="settings-row"><span className="settings-label">Border</span><div className="inline-colors">{shapeColors.map((color) => <button key={color.value} type="button" className={`swatch ${shapeColor === color.value ? 'selected' : ''}`} title={`${color.label} border`} aria-label={`${color.label} border`} style={{ background: color.value }} onClick={() => { setShapeColor(color.value); setOpenPanel(null) }} />)}</div></div>
+      </div>}
+    </div>
   </div>
 }
