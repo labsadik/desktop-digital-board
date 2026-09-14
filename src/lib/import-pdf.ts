@@ -87,7 +87,6 @@ export async function importPdfProject(dataUrl: string, onPageReady?: (progress:
     if (index === 1) {
       const src = await renderPage(pdfPage)
       pages[0].elements[0] = { id: elementId, type: 'image', x: 0, y: 0, width, height, rotation: 0, src, previewSrc: src }
-      onPageReady?.({ pageId, elementId, pageNumber: index, totalPages: pdf.numPages, src })
     } else {
       pdfPage.cleanup()
     }
@@ -110,6 +109,6 @@ export async function importPdfProject(dataUrl: string, onPageReady?: (progress:
   })()
 
   activeImports.add(background)
-  void background.finally(() => activeImports.delete(background))
+  void background.catch(() => undefined).finally(() => activeImports.delete(background))
   return project
 }
