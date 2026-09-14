@@ -1,6 +1,7 @@
 appId: com.notereplace.desktop
 productName: Note Replace
-compression: store
+artifactName: Note-Replace-${version}-${os}-${arch}.${ext}
+compression: maximum
 npmRebuild: false
 nodeGypRebuild: false
 buildDependenciesFromSource: false
@@ -18,6 +19,15 @@ win:
     - nsis
   icon: logo.png
   forceCodeSigning: false
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Note Replace
+  menuCategory: Note Replace
+  runAfterFinish: true
 mac:
   target:
     - dmg
