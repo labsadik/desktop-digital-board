@@ -9,7 +9,7 @@ declare global {
       importPdf(): Promise<string | null>
       importPptx(): Promise<string | null>
       exportPptx(project: Project): Promise<string | null>
-      exportPdf(html: string, fileName: string, pageCount: number): Promise<string | null>
+      exportPdf(pagesHtml: string[], fileName: string): Promise<string | null>
       exportPng(svg: string, fileName: string): Promise<string | null>
       reveal(target: string): Promise<void>
     }
