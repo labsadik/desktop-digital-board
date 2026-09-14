@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import { useEditorStore } from '../stores/editor.store'
 import { uid } from '../utils/id'
+import { pageToSvg } from '../lib/export-html'
 import type { DrawingElement, Element, ShapeElement } from '../types/document'
 
 type Interaction =
@@ -43,6 +44,7 @@ export function EditorCanvas() {
   const tool = useEditorStore((s) => s.tool)
   const penColor = useEditorStore((s) => s.penColor)
   const zoom = useEditorStore((s) => s.zoom)
+  const selectPage = useEditorStore((s) => s.selectPage)
   const page = project.pages.find((p) => p.id === currentPageId) ?? project.pages[0]
   const addElement = useEditorStore((s) => s.addElement)
   const updateElement = useEditorStore((s) => s.updateElement)
@@ -156,7 +158,15 @@ export function EditorCanvas() {
     : selected
 
   return <main className="workspace">
-    <div className="canvas-scroll"><div key={page.id} className="canvas-stage" style={{ transform: `scale(${zoom})`, width: 'min(100%, 1280px)', aspectRatio: `${page.width} / ${page.height}` }}><svg key={page.id} ref={svgRef} className="page-canvas" viewBox={`0 0 ${page.width} ${page.height}`} preserveAspectRatio="none" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}><rect width="100%" height="100%" fill={page.background} pointerEvents="all" />{page.elements.map(renderElement)}{drawing.length > 1 && <polyline points={drawing.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={tool === 'highlighter' ? '#facc15' : penColor} strokeWidth={tool === 'highlighter' ? 0.18 : 0.04} opacity={tool === 'highlighter' ? 0.35 : 1} strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" />}{selectedLive && !interaction && selectedLive.type !== 'drawing' && tool === 'select' && <g><rect x={selectedLive.x - 0.06} y={selectedLive.y - 0.06} width={selectedLive.width + 0.12} height={selectedLive.height + 0.12} fill="none" stroke="#4f46e5" strokeWidth="0.018" strokeDasharray="0.08 0.06" pointerEvents="none" /><rect data-resize-handle="br" x={selectedLive.x + selectedLive.width - 0.08} y={selectedLive.y + selectedLive.height - 0.08} width="0.16" height="0.16" fill="#ffffff" stroke="#4f46e5" strokeWidth="0.02" /></g>}</svg></div></div>
+    <div className="canvas-scroll">
+      <div className="board-pages" style={{ '--board-zoom': zoom } as React.CSSProperties}>
+        {project.pages.map((boardPage) => {
+          const active = boardPage.id === page.id
+          if (!active) return <button key={boardPage.id} type="button" className="board-page board-page-preview" onClick={() => selectPage(boardPage.id)} aria-label={`Open ${boardPage.name}`}><div className="board-page-label"><span>{project.pages.indexOf(boardPage) + 1}</span><strong>{boardPage.name}</strong></div><div className="board-preview" dangerouslySetInnerHTML={{ __html: pageToSvg(boardPage) }} /></button>
+          return <section key={boardPage.id} className="board-page board-page-active"><div className="board-page-label"><span>{project.pages.indexOf(boardPage) + 1}</span><strong>{boardPage.name}</strong><small>{boardPage.elements.length} elements</small></div><div className="canvas-stage" style={{ width: 'min(1120px, 92vw)', aspectRatio: `${page.width} / ${page.height}` }}><svg key={page.id} ref={svgRef} className="page-canvas" viewBox={`0 0 ${page.width} ${page.height}`} preserveAspectRatio="none" onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}><rect width="100%" height="100%" fill={page.background} pointerEvents="all" />{page.elements.map(renderElement)}{drawing.length > 1 && <polyline points={drawing.map((p) => `${p.x},${p.y}`).join(' ')} fill="none" stroke={tool === 'highlighter' ? '#facc15' : penColor} strokeWidth={tool === 'highlighter' ? 0.18 : 0.04} opacity={tool === 'highlighter' ? 0.35 : 1} strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" />}{selectedLive && !interaction && selectedLive.type !== 'drawing' && tool === 'select' && <g><rect x={selectedLive.x - 0.06} y={selectedLive.y - 0.06} width={selectedLive.width + 0.12} height={selectedLive.height + 0.12} fill="none" stroke="#4f46e5" strokeWidth="0.018" strokeDasharray="0.08 0.06" pointerEvents="none" /><rect data-resize-handle="br" x={selectedLive.x + selectedLive.width - 0.08} y={selectedLive.y + selectedLive.height - 0.08} width="0.16" height="0.16" fill="#ffffff" stroke="#4f46e5" strokeWidth="0.02" /></g>}</svg></div></section>
+        })}
+      </div>
+    </div>
     <div className="statusbar"><span>{page.name}</span><span>{page.elements.length} elements</span><span>{Math.round(zoom * 100)}%</span><span className="tool-status">{tool === 'select' ? 'Select' : tool === 'pen' ? `Pen · ${penColor === '#2563eb' ? 'Blue' : penColor === '#dc2626' ? 'Red' : 'Black'}` : tool === 'highlighter' ? 'Highlighter' : tool === 'shape' ? 'Shape' : 'Eraser'}</span></div>
   </main>
 }
