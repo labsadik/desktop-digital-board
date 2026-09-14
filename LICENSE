@@ -1,25 +1,63 @@
-STRICT PROPRIETARY AND CONFIDENTIAL
-COMMERCIAL SOURCE-AVAILABLE LICENSE AGREEMENT
+NOTE REPLACE
+PROPRIETARY USER LICENSE AGREEMENT
 
-Copyright (c) 2026 Sadik Laskar. All Rights Reserved.
+Copyright © 2026 Sadik Laskar. All Rights Reserved.
 
-1. EXCLUSIVE OWNERSHIP & NOTICE
-This software, including all associated source code, documentation, architectural logic, and algorithms (the "Software"), is the exclusive intellectual property of Sadik Laskar. The presence of this code in a public repository is strictly for portfolio demonstration, viewing, and auditing purposes only. It does NOT constitute an "Open Source" license.
+This license applies to the Note Replace application, its source code, binaries, documentation, design, interface, and related materials (collectively, the “Software”).
 
-2. ZERO RIGHTS GRANTED (STRICT PROHIBITION)
-You are expressly and strictly PROHIBITED from:
-- Using, executing, copying, downloading, modifying, or merging the Software.
-- Forking, publishing, distributing, sublicensing, or selling copies of the Software.
-- Creating derivative works based on the logic, UI, or architecture of this Software.
-- Reverse-engineering, decompiling, or extracting proprietary algorithms (e.g., DRM integrations, LMS infrastructure, concurrent WebSocket architectures, defense simulation engines, and AI telemetry).
-- Using any part of this repository to train, fine-tune, or prompt machine learning models or artificial intelligence systems.
+1. OWNERSHIP
 
-3. COMMERCIAL USE & LICENSING
-No personal, academic, or commercial use is permitted under any circumstances without a prior, mutually executed, written commercial license agreement from the copyright holder. Any unauthorized use, reproduction, or architectural theft will be considered a severe breach of intellectual property rights and will be subject to immediate legal action.
+The Software is proprietary intellectual property owned by Sadik Laskar. The repository may be publicly visible for reference, development history, portfolio, demonstration, or review, but public availability does not make the Software open source and does not transfer ownership.
 
-4. DISCLAIMER OF LIABILITY
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR LIABILITY ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+2. USER LICENSE
 
-For commercial licensing inquiries, enterprise acquisition, or written permission, strictly contact:
-Name: Sadik Laskar
+Subject to this agreement, the copyright holder grants an individual or organization a limited, non-exclusive, non-transferable license to install and use an authorized, unmodified build of Note Replace for its normal PDF annotation, editing, presentation, and document-work purposes.
+
+Users may create, edit, save, export, and distribute documents and other original content they create with the Software, subject to any separate rights applicable to those contents.
+
+3. WHAT IS NOT PERMITTED
+
+Without prior written permission from Sadik Laskar, you may not:
+
+- Copy, mirror, clone, fork, or republish this repository or substantial portions of it.
+- Download, reuse, or redistribute the source code as a software product or template.
+- Modify, repackage, rename, or create a derivative application from the Software.
+- Sell, sublicense, rent, lease, or redistribute the Software or an unauthorized modified build.
+- Remove, obscure, or alter copyright, author, license, trademark, or attribution notices.
+- Claim that you are the developer, author, copyright owner, or original creator of the Software.
+- Use the source code, architecture, UI, assets, or implementation as the basis of another product without written permission.
+- Reverse-engineer, decompile, disassemble, or attempt to extract proprietary source code or implementation details, except where applicable law expressly permits a limited exception.
+- Upload, mirror, or distribute private or unreleased builds or repository contents without authorization.
+
+4. REPOSITORY AND SOURCE-CODE PROTECTION
+
+A GitHub repository containing the Software is not a grant of a right to take, fork, copy, republish, or commercially reuse the repository. Any permission to access or view the repository is separate from the limited right to use an authorized application build.
+
+5. COMMERCIAL USE
+
+Use of an authorized compiled application build inside a business or organization is permitted under this license unless the specific distribution or build was supplied under different written terms. Redistribution of the application itself, redistribution of source code, commercial resale, white-labeling, or incorporation into another product requires prior written permission from the copyright holder.
+
+6. THIRD-PARTY COMPONENTS
+
+Note Replace may include third-party libraries distributed under their own licenses. Those third-party licenses remain separate and are not replaced by this agreement. This agreement applies to the proprietary Note Replace software and materials owned by Sadik Laskar.
+
+7. TERMINATION
+
+This license terminates automatically if you materially breach its terms. Upon termination, you must stop using and distributing unauthorized copies of the Software and, where legally required, remove unauthorized copies from systems under your control.
+
+8. NO TRANSFER OF OWNERSHIP
+
+This agreement grants a license to use the Software; it does not sell or transfer copyright or other intellectual-property ownership. All rights not expressly granted are reserved by Sadik Laskar.
+
+9. DISCLAIMER
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, TO THE MAXIMUM EXTENT PERMITTED BY LAW. THE COPYRIGHT HOLDER IS NOT LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR OTHER DAMAGES ARISING FROM USE OF THE SOFTWARE, EXCEPT TO THE EXTENT LIABILITY CANNOT LAWFULLY BE EXCLUDED.
+
+10. PERMISSION REQUESTS AND COMMERCIAL LICENSING
+
+Written permission is required for uses outside the rights granted above.
+
+Copyright holder / developer: Sadik Laskar
 Email: emailme.sadik@gmail.com
+
+© 2026 Sadik Laskar. All Rights Reserved.
