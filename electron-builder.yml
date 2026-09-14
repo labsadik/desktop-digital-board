@@ -32,6 +32,7 @@ nsis:
   createStartMenuShortcut: true
   shortcutName: Note Replace
   menuCategory: Note Replace
+  license: license.txt
   runAfterFinish: true
 mac:
   target:
