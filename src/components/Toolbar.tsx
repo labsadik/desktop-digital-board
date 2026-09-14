@@ -1,4 +1,4 @@
-import { ChevronDown, Copy, Download, Eraser, FilePlus2, FileText, FolderOpen, Highlighter, ImagePlus, Minus, MousePointer2, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PenLine, Plus, Redo2, Save, Square, Trash2, Undo2, ZoomIn, ZoomOut } from 'lucide-react'
+import { ChevronDown, Copy, Download, Eraser, FileText, FolderOpen, Highlighter, ImagePlus, Minus, MousePointer2, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen, PenLine, Plus, Redo2, Save, Square, Trash2, Undo2, ZoomIn, ZoomOut } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useEditorStore } from '../stores/editor.store'
 import logoUrl from '../../assets/logo.png'
@@ -73,7 +73,7 @@ export function Toolbar({ saveLabel, onSave, onOpen, onImportPdf, onExportPdf, o
           {toolButton('Zoom out', <ZoomOut size={16} />, () => setZoom(zoom - 0.1))}
           <span className="zoom-value" aria-live="polite">{Math.round(zoom * 100)}%</span>
           {toolButton('Zoom in', <ZoomIn size={16} />, () => setZoom(zoom + 0.1))}
-          {toolButton('Reset zoom', <Minus size={16} />, () => setZoom(1))}
+          {toolButton('Reset zoom to 65%', <Minus size={16} />, () => setZoom(0.65))}
         </div>
 
         <div className="toolbar-spacer" />
