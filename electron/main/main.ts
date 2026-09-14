@@ -8,6 +8,15 @@ import { createPptx } from './pptx.js'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 let mainWindow: BrowserWindow | null = null
 
+function getDevServerUrl() {
+  const flag = process.argv.find((value) => value.startsWith('--dev-server='))
+  return flag ? flag.slice('--dev-server='.length) : ''
+}
+
+function getRendererPath() {
+  return path.join(__dirname, '../../../dist/index.html')
+}
+
 function createWindow() {
   const logoPath = app.isPackaged ? path.join(process.resourcesPath, 'assets', 'logo.png') : path.join(__dirname, '../../../assets/logo.png')
   mainWindow = new BrowserWindow({
@@ -22,8 +31,13 @@ function createWindow() {
   })
   mainWindow.setMenuBarVisibility(false)
   mainWindow.on('closed', () => { mainWindow = null })
-  if (!app.isPackaged) void mainWindow.loadURL('http://127.0.0.1:5173')
-  else void mainWindow.loadFile(path.join(__dirname, '../../../dist/index.html'))
+
+  const devServerUrl = getDevServerUrl()
+  if (devServerUrl) {
+    void mainWindow.loadURL(devServerUrl)
+  } else {
+    void mainWindow.loadFile(getRendererPath())
+  }
 }
 
 function safeName(name: string) { return name.replace(/[<>:\"/\\|?*\x00-\x1F]/g, '-').trim() || 'Untitled' }
