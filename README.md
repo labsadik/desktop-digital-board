@@ -45,7 +45,7 @@ Note Replace is a desktop PDF annotation and editing application built with Elec
 
 A compiled demo application is available from the repository releases:
 
-[**Download the free Windows demo EXE from Releases**](https://github.com/WorkRCS/note_replace/releases)
+[**Download the free Windows demo EXE from Releases**](https://github.com/labsadik/desktop-digital-board/releases)
 
 The released application build may be used free of charge and without a time limit, subject to the terms of [`LICENSE`](LICENSE).
 
