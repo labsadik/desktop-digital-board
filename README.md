@@ -19,6 +19,20 @@ The application is intended for study notes, classroom material, presentations, 
 
 The goal is to keep PDF editing focused and fast instead of mixing the workflow with a large general-purpose design suite. The app keeps the page visible as the main workspace while the toolset stays compact and keyboard-friendly.
 
+## Product references / screenshots
+
+These screenshots show the actual Note Replace interface and workflow from the current product design.
+
+![Note Replace reference 1](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_27_47%20PM.png)
+
+![Note Replace reference 2](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_27_54%20PM.png)
+
+![Note Replace reference 3](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_28_09%20PM.png)
+
+![Note Replace reference 4](https://ik.imagekit.io/xvqovovhmcyr/Note%20Replace%209_14_2026%2012_28_25%20PM.png)
+
+![Note Replace reference 5](https://ik.imagekit.io/xvqovovhmcyr/Note%20Replace%209_14_2026%2012_28_29%20PM.png)
+
 ## Main features
 
 - **PDF import:** Import PDF documents page by page and keep the pages editable inside the workspace.
@@ -34,11 +48,11 @@ The goal is to keep PDF editing focused and fast instead of mixing the workflow 
 - **PNG export:** Export the current page as an image.
 - **Native projects:** Save and reopen native `.myed` project files.
 - **Desktop packaging:** Windows NSIS installer plus macOS and Linux targets are configured in the build system.
-- **Application identity:** The packaged application uses the Note Replace icon and identifies **Sadik Laskar** as the developer/copyright owner in the application metadata.
+- **Application identity:** The packaged application identifies **Sadik Laskar** as the developer/copyright owner in the application metadata.
 
 ## Reference workflow
 
-The image above shows the intended product flow: **Import → Edit → Organize → Export**.
+The product workflow is: **Import → Edit → Organize → Export**.
 
 ## How to use
 
@@ -101,17 +115,32 @@ npm run dist:win
 
 The Windows installer is generated under `release/`.
 
+## What each command does
+
+- `npm install` — installs the dependencies declared by the project.
+- `npm run dev` — starts the Vite development server and launches the Electron application.
+- `npm test -- --run` — runs the automated test suite once.
+- `npm run build` — type-checks the project, creates the production renderer build, and compiles the Electron process.
+- `npm start` — builds the application and then launches the compiled Electron app locally.
+- `npm run dist:win` — builds the application and packages it as a Windows NSIS installer.
+
 ## Production and security notes
 
 The renderer runs without Node integration and uses isolated Electron preload IPC. PDF imports are processed progressively, page images are optimized before being stored in editor state, and background PDF hydration does not create undo-history entries.
 
 The repository is **not an open-source project**. The application may be used according to the proprietary user license, but the repository, source code, UI implementation, assets, and architecture may not be copied, forked, repackaged, redistributed, or used as the basis of another product without written permission from Sadik Laskar.
 
-## License and ownership
+## Single license and ownership
 
 Copyright © 2026 **Sadik Laskar**. All Rights Reserved.
 
-The application is distributed under a **Proprietary User License**. Authorized users may use an unmodified build of Note Replace and may create/export their own documents. The license does not grant ownership of the source code or repository and does not permit unauthorized copying, forking, redistribution, reverse engineering, rebranding, or creation of derivative software.
+Note Replace uses **one license only: the `LICENSE` file in the repository**. There is no separate second license agreement or alternative repository license.
+
+Authorized users may install and use an unmodified build of Note Replace and may create, edit, save, and export their own documents. This user permission does **not** transfer ownership of the application or repository.
+
+Without prior written permission from **Sadik Laskar**, you may not copy, fork, mirror, publish, redistribute, repackage, rebrand, sell, sublicense, modify, create a competing derivative application from, or take substantial source code, UI implementation, assets, or architecture from this repository or application. You may not claim authorship or copyright ownership of Note Replace.
+
+Third-party libraries included by the application remain under their own respective licenses. Those third-party licenses do not transfer ownership of the proprietary Note Replace source code or repository.
 
 Read the complete terms in [`LICENSE`](LICENSE).
 
