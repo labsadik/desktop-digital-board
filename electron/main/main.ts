@@ -8,15 +8,6 @@ import { createPptx } from './pptx.js'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 let mainWindow: BrowserWindow | null = null
 
-function getDevServerUrl() {
-  const flag = process.argv.find((value) => value.startsWith('--dev-server='))
-  return flag ? flag.slice('--dev-server='.length) : ''
-}
-
-function getRendererPath() {
-  return path.join(__dirname, '../../../dist/index.html')
-}
-
 function createWindow() {
   const logoPath = app.isPackaged ? path.join(process.resourcesPath, 'assets', 'logo.png') : path.join(__dirname, '../../../assets/logo.png')
   mainWindow = new BrowserWindow({
@@ -31,13 +22,8 @@ function createWindow() {
   })
   mainWindow.setMenuBarVisibility(false)
   mainWindow.on('closed', () => { mainWindow = null })
-
-  const devServerUrl = getDevServerUrl()
-  if (devServerUrl) {
-    void mainWindow.loadURL(devServerUrl)
-  } else {
-    void mainWindow.loadFile(getRendererPath())
-  }
+  if (process.env.NOTE_REPLACE_DEV === '1') void mainWindow.loadURL('http://127.0.0.1:5173')
+  else void mainWindow.loadFile(path.join(__dirname, '../../../dist/index.html'))
 }
 
 function safeName(name: string) { return name.replace(/[<>:\"/\\|?*\x00-\x1F]/g, '-').trim() || 'Untitled' }
@@ -109,8 +95,9 @@ app.whenReady().then(() => {
     } finally { await fs.rm(temporary, { force: true }).catch(() => undefined) }
   })
 
-  ipcMain.handle('export:pdf', async (_event, html: string, fileName: string) => {
+  ipcMain.handle('export:pdf', async (_event, html: string, fileName: string, pageCount: number) => {
     if (typeof html !== 'string' || html.length > 250_000_000) throw new Error('Export payload is too large.')
+    const safePageCount = Number.isInteger(pageCount) ? Math.max(1, Math.min(500, pageCount)) : 1
     const result = await showSave({ defaultPath: `${safeName(fileName || 'presentation')}.pdf`, filters: [{ name: 'PDF', extensions: ['pdf'] }] })
     if (result.canceled || !result.filePath) return null
     const temporary = path.join(path.dirname(result.filePath), `.${path.basename(result.filePath)}.${randomUUID()}.tmp.pdf`)
@@ -120,7 +107,7 @@ app.whenReady().then(() => {
     try {
       await fs.writeFile(htmlPath, html, 'utf8')
       await exportWindow.loadFile(htmlPath)
-      const pdf = await exportWindow.webContents.printToPDF({ printBackground: true, preferCSSPageSize: true })
+      const pdf = await exportWindow.webContents.printToPDF({ printBackground: true, preferCSSPageSize: true, pageRanges: `1-${safePageCount}` })
       if (pdf.length < 1024) throw new Error('PDF export produced an invalid file.')
       await fs.writeFile(temporary, pdf)
       await atomicReplace(temporary, result.filePath)
