@@ -1,15 +1,16 @@
 # Note Replace
 
-A lightweight Electron desktop editor for presentations and PDF annotation.
+A lightweight Electron desktop digital-board editor for PDF annotation.
 
-## Features in this first production foundation
+## Features
 - Page sidebar with add, duplicate, delete and selection.
 - SVG-backed editor with text, shapes, images and freehand pen strokes.
-- Native Electron IPC with context isolation, sandboxing and no renderer Node access.
+- Real page-by-page canvas switching and zoom.
+- PDF import with every source page preserved as a separate editable page.
+- PDF export that preserves each edited page's exact canvas dimensions.
+- Native Electron IPC with context isolation and no renderer Node access.
 - `.myed` JSON project files.
-- PDF export through Electron's print-to-PDF pipeline.
-- PPTX export for native text/shapes and image elements.
-- Local unit tests for the document model.
+- Windows, macOS and Linux app icons use the shared `assets/logo.png` asset.
 
 ## Development
 
