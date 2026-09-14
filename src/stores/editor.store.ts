@@ -34,6 +34,7 @@ interface EditorState {
 }
 
 const initial = createProject()
+const DEFAULT_ZOOM = 0.65
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value))
 
 export const useEditorStore = create<EditorState>((set) => {
@@ -50,7 +51,7 @@ export const useEditorStore = create<EditorState>((set) => {
     selectedElementId: null,
     tool: 'select',
     penColor: '#111827',
-    zoom: 1,
+    zoom: DEFAULT_ZOOM,
     past: [],
     future: [],
     setTool: (tool) => set({ tool, selectedElementId: null }),
@@ -100,7 +101,7 @@ export const useEditorStore = create<EditorState>((set) => {
       if (!page || !page.elements.some((item) => item.id === elementId)) return state
       return commit(state, { ...state.project, pages: state.project.pages.map((p) => p.id === pageId ? { ...p, elements: p.elements.filter((item) => item.id !== elementId) } : p) }, { selectedElementId: null })
     }),
-    loadProject: (project) => set({ project, currentPageId: project.pages[0]?.id ?? '', selectedElementId: null, past: [], future: [], tool: 'select' }),
+    loadProject: (project) => set({ project, currentPageId: project.pages[0]?.id ?? '', selectedElementId: null, past: [], future: [], tool: 'select', zoom: DEFAULT_ZOOM }),
     setProjectName: (name) => set((state) => ({ project: { ...state.project, name } })),
     setZoom: (zoom) => set({ zoom: Math.max(0.25, Math.min(2, zoom)) }),
     undo: () => set((state) => {
