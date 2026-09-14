@@ -1,6 +1,9 @@
 appId: com.notereplace.desktop
 productName: Note Replace
 artifactName: Note-Replace-${version}-${os}-${arch}.${ext}
+description: Professional desktop PDF editor and annotation workspace built with Electron and React
+author: Sadik Laskar
+copyright: Copyright © 2026 Sadik Laskar. All Rights Reserved.
 compression: maximum
 npmRebuild: false
 nodeGypRebuild: false
@@ -19,6 +22,8 @@ win:
     - nsis
   icon: logo.png
   forceCodeSigning: false
+  signAndEditExecutable: true
+  legalTrademarks: Note Replace — © 2026 Sadik Laskar
 nsis:
   oneClick: false
   perMachine: false
