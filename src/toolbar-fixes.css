@@ -1,0 +1,26 @@
+.topbar{overflow:visible}
+.toolbar-inner{overflow:visible}
+.menu-wrap{position:relative;flex:0 0 auto}
+.tool-menu{right:0;left:auto;max-width:min(210px,calc(100vw - 20px));white-space:nowrap}
+.document-actions{margin-left:auto;flex:0 0 auto}
+@media(max-width:1200px){
+  .toolbar-inner{gap:3px;padding-inline:4px}
+  .toolbar-section{padding-inline:2px}
+  .toolbar-label{display:none}
+  .document-actions .secondary{width:33px;padding:0}
+  .menu-trigger{min-width:33px;width:33px;padding:0}
+}
+@media(max-width:1100px){
+  .topbar{padding-inline:5px}
+  .brand{padding-inline:3px}
+  .brand span:last-child{display:none}
+  .page-actions-toolbar{display:none}
+  .toolbar-inner{box-shadow:none}
+  .zoom-value{min-width:42px}
+}
+@media(max-width:820px){
+  .topbar{min-height:54px}
+  .toolbar-inner{flex-wrap:nowrap}
+  .document-actions .secondary{display:inline-flex}
+  .tool-menu{top:37px}
+}
