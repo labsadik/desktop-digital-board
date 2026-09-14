@@ -11,7 +11,7 @@
   },
   "scripts": {
     "predev": "npm run build",
-    "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && electron . --dev-server=http://127.0.0.1:5173\"",
+    "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && node scripts/start-dev-electron.mjs\"",
     "build": "tsc -b && vite build && tsc -p electron/tsconfig.json",
     "start": "npm run build && electron .",
     "start:built": "electron .",
