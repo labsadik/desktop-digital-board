@@ -8,7 +8,7 @@ contextBridge.exposeInMainWorld('desktop', {
   importPdf: () => ipcRenderer.invoke('file:import-pdf') as Promise<string | null>,
   importPptx: () => ipcRenderer.invoke('file:import-pptx') as Promise<string | null>,
   exportPptx: (project: Project) => ipcRenderer.invoke('export:pptx', project) as Promise<string | null>,
-  exportPdf: (html: string, fileName: string) => ipcRenderer.invoke('export:pdf', html, fileName) as Promise<string | null>,
+  exportPdf: (html: string, fileName: string, pageCount: number) => ipcRenderer.invoke('export:pdf', html, fileName, pageCount) as Promise<string | null>,
   exportPng: (svg: string, fileName: string) => ipcRenderer.invoke('export:png', svg, fileName) as Promise<string | null>,
   reveal: (target: string) => ipcRenderer.invoke('system:reveal', target) as Promise<void>,
 })
