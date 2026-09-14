@@ -1,8 +1,8 @@
 {
   "name": "note-replace",
-  "version": "0.1.0",
-  "description": "Desktop digital-board and PDF annotation editor built with Electron and React",
-  "author": "WorkRCS",
+  "version": "1.0.0",
+  "description": "Professional desktop PDF editor and annotation workspace built with Electron and React",
+  "author": "Sadik Laskar",
   "main": "dist-electron/electron/main/main.js",
   "type": "module",
   "engines": { "node": ">=22 <25", "npm": ">=10" },
