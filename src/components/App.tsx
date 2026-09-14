@@ -53,9 +53,10 @@ export function App() {
   const save = useCallback(() => {
     void run(project.sourceFormat === 'pdf' ? 'Preparing PDF…' : 'Preparing project…', async () => {
       if (project.sourceFormat === 'pdf') await waitForPdfImports()
-      return project.sourceFormat === 'pdf' ? window.desktop.exportPdf(projectToPdfPages(project), project.name) : window.desktop.saveProject(project)
+      const latestProject = useEditorStore.getState().project
+      return latestProject.sourceFormat === 'pdf' ? window.desktop.exportPdf(projectToPdfPages(latestProject), latestProject.name) : window.desktop.saveProject(latestProject)
     })
-  }, [project, run])
+  }, [project.sourceFormat, run])
 
   const open = useCallback(() => {
     void run('Opening project…', async () => {
@@ -95,17 +96,19 @@ export function App() {
   const exportPdf = useCallback(() => {
     void run('Preparing PDF export…', async () => {
       if (project.sourceFormat === 'pdf') await waitForPdfImports()
-      return window.desktop.exportPdf(projectToPdfPages(project), project.name)
+      const latestProject = useEditorStore.getState().project
+      return window.desktop.exportPdf(projectToPdfPages(latestProject), latestProject.name)
     })
-  }, [project, run])
+  }, [project.sourceFormat, run])
 
   const exportPng = useCallback(() => {
     void run('Preparing PNG export…', async () => {
       if (project.sourceFormat === 'pdf') await waitForPdfImports()
-      const current = useEditorStore.getState().project.pages.find((item) => item.id === currentPageId) ?? useEditorStore.getState().project.pages[0]
-      return current ? window.desktop.exportPng(pageToSvg(current), `${project.name}-${current.name}`) : null
+      const latestProject = useEditorStore.getState().project
+      const current = latestProject.pages.find((item) => item.id === currentPageId) ?? latestProject.pages[0]
+      return current ? window.desktop.exportPng(pageToSvg(current), `${latestProject.name}-${current.name}`) : null
     })
-  }, [currentPageId, project.name, project.sourceFormat, run])
+  }, [currentPageId, project.sourceFormat, run])
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
