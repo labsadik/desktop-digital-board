@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Professional desktop PDF editor and annotation workspace built with Electron and React",
   "author": "Sadik Laskar",
+  "license": "SEE LICENSE IN LICENSE",
   "main": "dist-electron/electron/main/main.js",
   "type": "module",
   "engines": { "node": ">=22 <25", "npm": ">=10" },
