@@ -9,6 +9,6 @@ function elementSvg(element: Element) {
 }
 export function pageToSvg(page: Page) { return `<svg xmlns="http://www.w3.org/2000/svg" width="${page.width}in" height="${page.height}in" viewBox="0 0 ${page.width} ${page.height}"><rect width="100%" height="100%" fill="${page.background}"/>${page.elements.map(elementSvg).join('')}</svg>` }
 export function projectToPdfHtml(project: Project) {
-  const sections = project.pages.map((page) => `<section style="width:${page.width}in;height:${page.height}in;page-break-after:always"><div class="page-frame">${pageToSvg(page)}</div></section>`).join('')
-  return `<!doctype html><html><head><style>@page{margin:0}html,body{margin:0;padding:0;background:#fff}section{page-break-after:always;overflow:hidden}.page-frame{width:100%;height:100%}section:last-child{page-break-after:auto}svg{display:block;width:100%;height:100%}</style></head><body>${sections}</body></html>`
+  const sections = project.pages.map((page, index) => `<section class="print-page" data-page-index="${index}" style="width:${page.width}in;height:${page.height}in"><div class="page-frame">${pageToSvg(page)}</div></section>`).join('')
+  return `<!doctype html><html><head><style>@page{margin:0}html,body{margin:0;padding:0;background:#fff;width:100%;height:100%}body{overflow:hidden}.print-page{display:block;position:relative;box-sizing:border-box;overflow:hidden;margin:0;padding:0;break-inside:avoid;page-break-inside:avoid;break-after:page;page-break-after:always}.print-page:last-child{break-after:auto;page-break-after:auto}.page-frame{display:block;width:100%;height:100%;margin:0;padding:0}.page-frame svg{display:block;width:100%;height:100%;margin:0;padding:0}</style></head><body>${sections}</body></html>`
 }
