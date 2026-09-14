@@ -29,9 +29,9 @@ These screenshots show the actual Note Replace interface and workflow from the c
 
 ![Note Replace reference 3](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_28_09%20PM.png)
 
-![Note Replace reference 4](https://ik.imagekit.io/xvqovovhmcyr/Note%20Replace%209_14_2026%2012_28_25%20PM.png)
+![Note Replace reference 4](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_28_25%20PM.png)
 
-![Note Replace reference 5](https://ik.imagekit.io/xvqovovhmcyr/Note%20Replace%209_14_2026%2012_28_29%20PM.png)
+![Note Replace reference 5](https://ik.imagekit.io/xvqovhmcyr/Note%20Replace%209_14_2026%2012_28_29%20PM.png)
 
 ## Main features
 
