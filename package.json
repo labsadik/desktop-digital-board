@@ -5,10 +5,7 @@
   "author": "WorkRCS",
   "main": "dist-electron/electron/main/main.js",
   "type": "module",
-  "engines": {
-    "node": ">=22 <25",
-    "npm": ">=10"
-  },
+  "engines": { "node": ">=22 <25", "npm": ">=10" },
   "scripts": {
     "predev": "npm run build",
     "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && node scripts/start-dev-electron.mjs\"",
@@ -26,6 +23,7 @@
     "fast-xml-parser": "latest",
     "jszip": "latest",
     "lucide-react": "latest",
+    "pdf-lib": "latest",
     "pdfjs-dist": "latest",
     "pptxgenjs": "latest",
     "react": "latest",
