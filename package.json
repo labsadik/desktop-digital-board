@@ -1,7 +1,7 @@
 {
   "name": "note-replace",
   "version": "0.1.0",
-  "description": "Desktop presentation and PDF annotation editor built with Electron and React",
+  "description": "Desktop digital-board and PDF annotation editor built with Electron and React",
   "author": "WorkRCS",
   "main": "dist-electron/electron/main/main.js",
   "type": "module",
@@ -20,12 +20,9 @@
     "dist:win": "npm run dist -- --win nsis"
   },
   "dependencies": {
-    "fast-xml-parser": "latest",
-    "jszip": "latest",
     "lucide-react": "latest",
     "pdf-lib": "latest",
     "pdfjs-dist": "latest",
-    "pptxgenjs": "latest",
     "react": "latest",
     "react-dom": "latest",
     "zustand": "latest"
