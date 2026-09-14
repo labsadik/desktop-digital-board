@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { App } from './components/App'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import './styles.css'
+import './toolbar-fixes.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
