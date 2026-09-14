@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Note Replace product workflow</title>
+  <desc id="desc">Import a PDF, annotate it, manage pages, and export the finished document.</desc>
+  <rect width="1200" height="360" rx="28" fill="#f7f8fb"/>
+  <text x="60" y="65" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700" fill="#17191f">Note Replace</text>
+  <text x="60" y="98" font-family="Segoe UI, Arial, sans-serif" font-size="17" fill="#5b616b">Desktop PDF annotation and digital-board workflow</text>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <g transform="translate(55 145)">
+      <rect width="210" height="135" rx="18" fill="#ffffff" stroke="#d8dce4"/>
+      <text x="25" y="43" font-size="18" font-weight="700" fill="#17191f">1. Import</text>
+      <text x="25" y="72" font-size="14" fill="#5b616b">PDF or blank canvas</text>
+      <text x="25" y="96" font-size="14" fill="#5b616b">page-by-page workspace</text>
+    </g>
+    <path d="M285 212 H330" stroke="#8991a0" stroke-width="3"/>
+    <path d="M330 212 l-12 -8 v16 z" fill="#8991a0"/>
+    <g transform="translate(345 145)">
+      <rect width="210" height="135" rx="18" fill="#ffffff" stroke="#d8dce4"/>
+      <text x="25" y="43" font-size="18" font-weight="700" fill="#17191f">2. Edit</text>
+      <text x="25" y="72" font-size="14" fill="#5b616b">Pen, brush, highlighter</text>
+      <text x="25" y="96" font-size="14" fill="#5b616b">shapes, images, erase</text>
+    </g>
+    <path d="M575 212 H620" stroke="#8991a0" stroke-width="3"/>
+    <path d="M620 212 l-12 -8 v16 z" fill="#8991a0"/>
+    <g transform="translate(635 145)">
+      <rect width="210" height="135" rx="18" fill="#ffffff" stroke="#d8dce4"/>
+      <text x="25" y="43" font-size="18" font-weight="700" fill="#17191f">3. Organize</text>
+      <text x="25" y="72" font-size="14" fill="#5b616b">Add, duplicate, rename</text>
+      <text x="25" y="96" font-size="14" fill="#5b616b">delete and reorder pages</text>
+    </g>
+    <path d="M865 212 H910" stroke="#8991a0" stroke-width="3"/>
+    <path d="M910 212 l-12 -8 v16 z" fill="#8991a0"/>
+    <g transform="translate(925 145)">
+      <rect width="210" height="135" rx="18" fill="#ffffff" stroke="#d8dce4"/>
+      <text x="25" y="43" font-size="18" font-weight="700" fill="#17191f">4. Export</text>
+      <text x="25" y="72" font-size="14" fill="#5b616b">Save edited PDF</text>
+      <text x="25" y="96" font-size="14" fill="#5b616b">or export the current page</text>
+    </g>
+  </g>
+</svg>
