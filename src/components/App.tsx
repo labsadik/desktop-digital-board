@@ -61,7 +61,7 @@ export function App() {
   const open = useCallback(() => {
     void run('Opening project…', async () => {
       const loaded = await window.desktop.openProject()
-      if (loaded) { loadProject(loaded); setShowStart(false) }
+      if (loaded) { loadProject(loaded); setShowStart(false); setPdfProgress(null) }
       return null
     })
   }, [loadProject, run])
@@ -78,7 +78,8 @@ export function App() {
     await run('Importing PDF…', async () => {
       const imported = await importPdfProject(dataUrl, handlePdfPageReady)
       loadProject(imported)
-      setPdfProgress({ done: 1, total: imported.pages.length })
+      if (imported.pages.length > 1) setPdfProgress({ done: 1, total: imported.pages.length })
+      else setPdfProgress(null)
       setShowStart(false)
       return null
     })
