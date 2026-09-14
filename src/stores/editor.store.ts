@@ -33,6 +33,7 @@ interface EditorState {
   renamePage: (id: string, name: string) => void
   addElement: (element: Element) => void
   updateElement: (pageId: string, elementId: string, patch: Partial<Element>) => void
+  hydrateElement: (pageId: string, elementId: string, patch: Partial<Element>) => void
   removeElement: (pageId: string, elementId: string) => void
   loadProject: (project: Project) => void
   setProjectName: (name: string) => void
@@ -106,6 +107,19 @@ export const useEditorStore = create<EditorState>((set) => {
     renamePage: (id, name) => set((state) => commit(state, { ...state.project, pages: state.project.pages.map((page) => page.id === id ? { ...page, name } : page) })),
     addElement: (element) => set((state) => commit(state, { ...state.project, pages: state.project.pages.map((p) => p.id === state.currentPageId ? { ...p, elements: [...p.elements, element] } : p) }, { selectedElementId: element.id })),
     updateElement: (pageId, elementId, patch) => set((state) => commit(state, { ...state.project, pages: state.project.pages.map((p) => p.id === pageId ? { ...p, elements: p.elements.map((item) => item.id === elementId ? ({ ...item, ...patch } as Element) : item) } : p) }, { selectedElementId: elementId })),
+    hydrateElement: (pageId, elementId, patch) => set((state) => {
+      let changed = false
+      const pages = state.project.pages.map((page) => {
+        if (page.id !== pageId) return page
+        const elements = page.elements.map((element) => {
+          if (element.id !== elementId) return element
+          changed = true
+          return { ...element, ...patch } as Element
+        })
+        return changed ? { ...page, elements } : page
+      })
+      return changed ? { project: { ...state.project, pages } } : state
+    }),
     removeElement: (pageId, elementId) => set((state) => {
       const page = state.project.pages.find((item) => item.id === pageId)
       if (!page || !page.elements.some((item) => item.id === elementId)) return state
