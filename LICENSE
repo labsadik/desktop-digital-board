@@ -7,35 +7,37 @@ This license applies to the Note Replace application, its source code, binaries,
 
 1. OWNERSHIP
 
-The Software is proprietary intellectual property owned by Sadik Laskar. The repository may be publicly visible for reference, development history, portfolio, demonstration, or review, but public availability does not make the Software open source and does not transfer ownership.
+The Software and repository are proprietary intellectual property owned by Sadik Laskar. Public repository visibility does not make the Software open source and does not transfer ownership.
 
-2. USER LICENSE
+2. FREE APPLICATION USE
 
-Subject to this agreement, the copyright holder grants an individual or organization a limited, non-exclusive, non-transferable license to install and use an authorized, unmodified build of Note Replace for its normal PDF annotation, editing, presentation, and document-work purposes.
+The copyright holder grants users a perpetual, non-exclusive, non-transferable right to install and use an authorized compiled build of Note Replace free of charge and without a time limit for normal PDF annotation, editing, presentation, and document-work purposes.
 
-Users may create, edit, save, export, and distribute documents and other original content they create with the Software, subject to any separate rights applicable to those contents.
+Users may create, edit, save, export, and distribute documents and other original content they create with the application, subject to any separate rights applicable to that content.
+
+This free-use grant applies to the authorized compiled application only. It does not grant ownership of the source code, repository, architecture, UI implementation, assets, or other proprietary materials.
 
 3. WHAT IS NOT PERMITTED
 
 Without prior written permission from Sadik Laskar, you may not:
 
-- Copy, mirror, clone, fork, or republish this repository or substantial portions of it.
-- Download, reuse, or redistribute the source code as a software product or template.
-- Modify, repackage, rename, or create a derivative application from the Software.
-- Sell, sublicense, rent, lease, or redistribute the Software or an unauthorized modified build.
+- Clone, fork, mirror, copy, or republish this repository or substantial portions of it.
+- Download, reuse, or redistribute the source code as another software product, template, or repository.
+- Modify, repackage, rename, rebrand, or create a derivative application from the Software.
+- Use the source code, architecture, UI, assets, or implementation as the basis of another product or repository.
+- Resell, sublicense, white-label, or commercially redistribute the Software or an unauthorized modified build.
 - Remove, obscure, or alter copyright, author, license, trademark, or attribution notices.
-- Claim that you are the developer, author, copyright owner, or original creator of the Software.
-- Use the source code, architecture, UI, assets, or implementation as the basis of another product without written permission.
-- Reverse-engineer, decompile, disassemble, or attempt to extract proprietary source code or implementation details, except where applicable law expressly permits a limited exception.
+- Claim authorship, copyright ownership, or original creation of Note Replace.
+- Reverse-engineer, decompile, disassemble, or attempt to extract proprietary implementation details, except where applicable law expressly permits a limited exception.
 - Upload, mirror, or distribute private or unreleased builds or repository contents without authorization.
 
 4. REPOSITORY AND SOURCE-CODE PROTECTION
 
-A GitHub repository containing the Software is not a grant of a right to take, fork, copy, republish, or commercially reuse the repository. Any permission to access or view the repository is separate from the limited right to use an authorized application build.
+Permission to view or access the GitHub repository does not grant permission to take, clone, fork, copy, modify, republish, redistribute, or reuse the repository or its source code. The free application-use right is separate from all repository and source-code rights.
 
-5. COMMERCIAL USE
+5. COMMERCIAL USE OF THE APPLICATION
 
-Use of an authorized compiled application build inside a business or organization is permitted under this license unless the specific distribution or build was supplied under different written terms. Redistribution of the application itself, redistribution of source code, commercial resale, white-labeling, or incorporation into another product requires prior written permission from the copyright holder.
+The free compiled application may be used in personal, educational, or business workflows without a usage fee. Redistribution of the application, resale, white-label distribution, source-code reuse, incorporation into another product, or creation of a competing derivative application requires prior written permission from the copyright holder.
 
 6. THIRD-PARTY COMPONENTS
 
@@ -43,21 +45,22 @@ Note Replace may include third-party libraries distributed under their own licen
 
 7. TERMINATION
 
-This license terminates automatically if you materially breach its terms. Upon termination, you must stop using and distributing unauthorized copies of the Software and, where legally required, remove unauthorized copies from systems under your control.
+The free application-use right continues without a time limit unless terminated because of a material breach of this license. Upon termination, unauthorized use and distribution must stop, subject to applicable law.
 
 8. NO TRANSFER OF OWNERSHIP
 
-This agreement grants a license to use the Software; it does not sell or transfer copyright or other intellectual-property ownership. All rights not expressly granted are reserved by Sadik Laskar.
+This agreement grants rights of use only. It does not sell or transfer copyright or other intellectual-property ownership. All rights not expressly granted remain with Sadik Laskar.
 
 9. DISCLAIMER
 
 THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, TO THE MAXIMUM EXTENT PERMITTED BY LAW. THE COPYRIGHT HOLDER IS NOT LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR OTHER DAMAGES ARISING FROM USE OF THE SOFTWARE, EXCEPT TO THE EXTENT LIABILITY CANNOT LAWFULLY BE EXCLUDED.
 
-10. PERMISSION REQUESTS AND COMMERCIAL LICENSING
+10. PERMISSION REQUESTS
 
 Written permission is required for uses outside the rights granted above.
 
 Copyright holder / developer: Sadik Laskar
+GitHub: https://github.com/labsadik
 Email: emailme.sadik@gmail.com
 
 © 2026 Sadik Laskar. All Rights Reserved.
